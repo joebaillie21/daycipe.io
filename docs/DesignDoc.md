@@ -1,12 +1,12 @@
 # Daycipe.io Design Document
 
 ## Team Information
-> Team name: Daycipe Devs
-> Team members
-  > Joe Baillie
-  > Coray Bennett 
-  > Ursula Parker
-  > Ali Stambayev
+- Team name: Daycipe Devs
+- Team members
+  - Joe Baillie
+  - Coray Bennett 
+  - Ursula Parker
+  - Ali Stambayev
 
 ## Executive Summary
 
@@ -34,17 +34,17 @@ Daycipe.io must be able to display a fact, recipe, and joke to the user. It must
 include functionality for reporting, upvoting, and viewing past facts, recipes, and jokes.
 
 ### MVP Features
-> Fact of the day with a reference from a reputable website 
-> Report button
-> Fact specifications
-> Recipe of the day
-> Report button
-> Recipe specifications
-> Ingredient calculation according to Serving size selection
-> Upvote
-> Joke of the day
-> Rotating carousel of 3 jokes - highest upvote gets shown first. 
-> Calendar based viewing to see past fact, recipe, and 3 jokes of the day
+* Fact of the day with a reference from a reputable website 
+* Report button
+* Fact specifications
+* Recipe of the day
+* Report button
+* Recipe specifications
+* Ingredient calculation according to Serving size selection
+* Upvote
+* Joke of the day
+* Rotating carousel of 3 jokes - highest upvote gets shown first. 
+* Calendar based viewing to see past fact, recipe, and 3 jokes of the day
 
 
 ## Architecture and Design
@@ -54,6 +54,8 @@ backend(model), frontend(view), and middleware(controller).
 
 
 ### Software Architecture
+
+![Model-View-Controller Architecture](<MVC Architecture.png>)
 
 The software architecture for Daycipe.io will follow the Model-View-Controller (MVC) pattern. 
 This architecture will help in separating concerns and organizing the codebase efficiently. 
@@ -65,9 +67,9 @@ This architecture will help in separating concerns and organizing the codebase e
 This architecture ensures that the application is scalable, maintainable, and easy to extend with new features in the future.
 
 ### Use Cases
-> _Place a use case diagram here._
+> ![Use Case Diagram](<Use Case Diagram.png>)
 
-- Viewing the fact, joke, and recipe of the day.
+- Viewing the content (fact, joke, and recipe) of the day.
 - Upvoting and downvoting content.
 - Reporting inappropriate or inaccurate content.
 - Selecting an academic domain for the fact of the day.
