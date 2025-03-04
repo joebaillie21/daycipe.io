@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
 
     steps:
       # Checkout the repository
@@ -27,7 +30,7 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: cd server && npm install
+        run: npm install
 
       # Run tests
       - name: Run tests
