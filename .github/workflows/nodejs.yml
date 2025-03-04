@@ -16,7 +16,8 @@ jobs:
       # Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
-      - run: git branch
+        with:
+          ref: ${{ github.ref }}
 
       # Set up Node.js
       - name: Set up Node.js
