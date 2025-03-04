@@ -1,1 +1,1 @@
-const conn = require("../conn");
+import conn from "../conn";

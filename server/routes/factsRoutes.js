@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
+import { Router } from "express";
+const router = Router();
 
-const { getFacts } = require("../db/queries/facts");
+import { getFacts } from "../db/queries/facts.js";
   
 // Get all facts route (example)
 router.get("/", async (req, res) => {
@@ -13,4 +13,4 @@ try {
 }
 });
 
-module.exports = router;
+export default router;

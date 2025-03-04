@@ -1,9 +1,7 @@
-const conn = require("../conn");
+import { pool } from "../conn.js";
 
 // Get all facts (example)
-const getFacts = async () => {
-    const result = await conn.query("SELECT * FROM facts");
+export const getFacts = async () => {
+    const result = await pool.query("SELECT * FROM facts");
     return result.rows;
 };
-
-module.exports = { getFacts };
