@@ -15,15 +15,15 @@ jobs:
     steps:
       # Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # Set up Node.js
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '20' # Specify the Node.js version (adjust if needed)
+          node-version: '20'
 
-      - name: switch to server directory
+      - name: Switch to server directory
         run: cd server
 
       # Install dependencies
@@ -33,7 +33,7 @@ jobs:
       # Run tests
       - name: Run tests
         run: npm test
-
-      # Optionally, run build
+      
+      # Run build
       - name: Build project
-        run: npm run build # If you have a build step
+        run: npm run build
