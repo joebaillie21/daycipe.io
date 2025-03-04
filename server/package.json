@@ -4,8 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "mocha",
-    "build": "node index.js"
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
