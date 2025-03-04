@@ -25,12 +25,9 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Switch to server directory
-        run: cd server
-
       # Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: cd server && npm install
 
       # Run tests
       - name: Run tests
