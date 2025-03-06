@@ -1,4 +1,4 @@
-name: Node.js Backend CI
+name: Node.js Backend CI Tests
 
 on:
   push:
