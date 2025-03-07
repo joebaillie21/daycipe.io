@@ -15,6 +15,7 @@ describe("Facts Routes", () => {
     jest.clearAllMocks();
   });
 
+  // Success path for /facts
   test("GET /facts should return all facts", async () => {
     const mockFacts = [{ id: 1, fact: "Fact 1" }, { id: 2, fact: "Fact 2" }];
     getFacts.mockResolvedValue(mockFacts);
@@ -26,6 +27,7 @@ describe("Facts Routes", () => {
     expect(getFacts).toHaveBeenCalledTimes(1);
   });
 
+  // Success path for /facts/today
   test("GET /facts/today should return today's fact", async () => {
     const mockFact = { id: 1, fact: "Fact of the day" };
     getCurrentFact.mockResolvedValue(mockFact);
@@ -37,6 +39,7 @@ describe("Facts Routes", () => {
     expect(getCurrentFact).toHaveBeenCalledTimes(1);
   });
 
+  // Alternate path for 'no fact found'
   test("GET /facts/today should return 404 if no fact is found", async () => {
     getCurrentFact.mockResolvedValue(null);
 
@@ -47,6 +50,7 @@ describe("Facts Routes", () => {
     expect(getCurrentFact).toHaveBeenCalledTimes(1);
   });
 
+  // Alternate paths for server errors
   test("GET /facts should handle errors gracefully", async () => {
     getFacts.mockRejectedValue(new Error("Database error"));
 
