@@ -3,7 +3,7 @@ const router = Router();
 
 import { getCurrentFact, getFacts } from "../db/queries/facts.js";
   
-// Get all facts route (example)
+// Get all facts
 router.get("/", async (req, res) => {
 try {
     const clubs = await getFacts();
@@ -13,7 +13,7 @@ try {
 }
 });
 
-// Get the curent date's fact
+// Get the current date's fact
 router.get("/today", async (req, res) => {
     try {
         const clubs = await getCurrentFact();

@@ -9,7 +9,7 @@ DROP TYPE IF EXISTS fact_category;
 -- Table for facts
 CREATE TYPE fact_category AS ENUM ('math', 'physics', 'bio', 'compsci', 'chem');
 
-CREATE TABLE  facts (
+CREATE TABLE facts (
     id SERIAL PRIMARY KEY,
     date DATE NOT NULL,
     content VARCHAR(1000) NOT NULL,
