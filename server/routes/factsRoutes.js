@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { getCurrentFact, getFacts } from "../db/queries/facts.js";
+import { createFact, getCurrentFact, getFacts } from "../db/queries/facts.js";
   
 // Get all facts
 router.get("/", async (req, res) => {
@@ -27,5 +27,29 @@ router.get("/today", async (req, res) => {
         res.status(500).json({ error: "Failed to get facts" });
     }
 });
+
+router.post("/create", async (req, res) => {
+    try {
+        const fact = req.body.fact;
+        if(!fact) {
+            res.status(400).json({error: "Request does not contain fact data."});
+            return;
+        }
+    
+        // Verify request data
+        const requiredKeys = new Set(['date', 'content', 'source', 'category']);
+        for(const key in fact) {
+            if(!key in requiredKeys) {
+                res.status(400).json({ error: `Missing required key: ${key}` });
+                return;
+            }
+        }
+    
+        const id = await createFact(fact);
+        res.json({factId: id});
+    } catch (error) {
+        res.status(500).json({ error: `Failed to create fact: ${error}` });
+    }
+})
 
 export default router;
