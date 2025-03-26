@@ -20,7 +20,7 @@ CREATE TABLE facts (
 );
 
 -- Table for recipes
-CREATE TYPE recipe_category AS ENUM ('veganism', 'vegetarianism', 'lactose_intolerance', 'gluten_intolerance', 'kosher');
+CREATE TYPE recipe_category AS ENUM ('default', 'veganism', 'vegetarianism', 'lactose_intolerance', 'gluten_intolerance', 'kosher');
 
 CREATE TABLE recipes (
     id SERIAL PRIMARY KEY,

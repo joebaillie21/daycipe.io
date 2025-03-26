@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { getCurrentRecipe, getRecipes } from "../db/queries/recipes.js";
+import { getCurrentRecipe, getRecipes, createRecipe } from "../db/queries/recipes.js";
   
 // Get all recipes
 router.get("/", async (req, res) => {
@@ -25,6 +25,30 @@ router.get("/today", async (req, res) => {
         res.json(clubs);
     } catch (error) {
         res.status(500).json({ error: "Failed to get recipes" });
+    }
+});
+
+// Create new recipe
+router.post("/create", async (req, res) => {
+    try {
+        const recipe = req.body.recipe;
+        if(!recipe) {
+            res.status(400).json({error: `Request does not contain recipe data.`});
+            return;
+        }
+    
+        const requiredKeys = new Set(['date', 'content', 'category']);
+        for(const key in recipe) {
+            if(!key in requiredKeys) {
+                res.status(400).json({ error: `Missing required key: ${key}` });
+                return;
+            }
+        }
+    
+        const id = await createRecipe(recipe);
+        res.json({recipeId: id});
+    } catch (error) {
+        res.status(500).json({ error: `Failed to create recipe: ${error}` });
     }
 });
 

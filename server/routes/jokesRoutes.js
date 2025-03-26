@@ -28,4 +28,28 @@ router.get("/today", async (req, res) => {
     }
 });
 
+// Create new joke
+router.post("/create", async (req, res) => {
+    try {
+        const joke = req.body.joke;
+        if(!joke) {
+            res.status(400).json({error: `Request does not contain joke data.`});
+            return;
+        }
+    
+        const requiredKeys = new Set(['date', 'content', 'source']);
+        for(const key in joke) {
+            if(!key in requiredKeys) {
+                res.status(400).json({ error: `Missing required key: ${key}` });
+                return;
+            }
+        }
+    
+        const id = await createJoke(joke);
+        res.json({jokeId: id});
+    } catch (error) {
+        res.status(500).json({ error: `Failed to create joke: ${error}` });
+    }
+});
+
 export default router;
