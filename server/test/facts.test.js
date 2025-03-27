@@ -1,15 +1,15 @@
 import request from "supertest";
-import express from "express";
+import express, {json} from "express";
 import factsRouter from "../routes/factsRoutes.js";
-import { getCurrentFact, getFacts } from "../db/queries/facts.js";
+import { getCurrentFact, getFacts, createFact } from "../db/queries/facts.js";
 
-// Mock the getCurrentFact and getFacts functions
 jest.mock("../db/queries/facts.js");
 
 const app = express();
+app.use(json());
 app.use("/facts", factsRouter);
 
-describe("Facts Routes", () => {
+describe("GET Endpoints", () => {
   
   afterEach(() => {
     jest.clearAllMocks();
@@ -69,4 +69,70 @@ describe("Facts Routes", () => {
     expect(response.body).toEqual({ error: "Failed to get facts" });
   });
 
+});
+
+describe("POST endpoints", () => {
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test for missing fact data in the request body
+  test("should return 400 if fact data is missing", async () => {
+      const response = await request(app)
+          .post("/facts/create")
+          .send({});
+      
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe("Request does not contain fact data.");
+  });
+
+  // Test for missing required keys in the fact object
+  test("should return 400 if fact is missing required keys", async () => {
+      const response = await request(app)
+          .post("/facts/create")
+          .send({ fact: { date: "2025-03-26", content: "Some content" } });
+      
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe("Missing required key: source");
+  });
+
+  // Test successful fact creation
+  test("should create a fact and return the factId", async () => {
+      createFact.mockResolvedValue("12345");
+
+      const factData = {
+          date: "2025-03-26",
+          content: "Some fact content",
+          source: "Some source",
+          category: "Some category"
+      };
+
+      const response = await request(app)
+          .post("/facts/create")
+          .send({ fact: factData });
+
+      expect(response.status).toBe(200);
+      expect(response.body.factId).toBe("12345");
+      expect(createFact).toHaveBeenCalledWith(factData);
+  });
+
+  // Test for failure when createFact throws an error
+  test("should return 500 if createFact fails", async () => {
+      createFact.mockRejectedValue(new Error("Failed to create fact"));
+
+      const factData = {
+          date: "2025-03-26",
+          content: "Some fact content",
+          source: "Some source",
+          category: "Some category"
+      };
+
+      const response = await request(app)
+          .post("/facts/create")
+          .send({ fact: factData });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe("Failed to create fact: Error: Failed to create fact");
+  });
 });
