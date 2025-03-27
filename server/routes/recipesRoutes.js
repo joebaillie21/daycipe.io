@@ -38,8 +38,8 @@ router.post("/create", async (req, res) => {
         }
     
         const requiredKeys = new Set(['date', 'content', 'category']);
-        for(const key in recipe) {
-            if(!key in requiredKeys) {
+        for(const key of requiredKeys) {
+            if(!(key in recipe)) {
                 res.status(400).json({ error: `Missing required key: ${key}` });
                 return;
             }

@@ -3,7 +3,6 @@ import express, {json} from "express";
 import factsRouter from "../routes/factsRoutes.js";
 import { getCurrentFact, getFacts, createFact } from "../db/queries/facts.js";
 
-// Mock the getCurrentFact and getFacts functions
 jest.mock("../db/queries/facts.js");
 
 const app = express();

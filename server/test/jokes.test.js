@@ -3,7 +3,6 @@ import express, {json} from "express";
 import jokesRouter from "../routes/jokesRoutes.js";
 import { getCurrentJokes, getJokes, createJoke } from "../db/queries/jokes.js";
 
-// Mock the getCurrentjoke and getjokes functions
 jest.mock("../db/queries/jokes.js");
 
 const app = express();
@@ -11,7 +10,7 @@ app.use(json());
 app.use("/jokes", jokesRouter);
 
 
-describe("Jokes Routes", () => {
+describe("GET Endpoints", () => {
   
   afterEach(() => {
     jest.clearAllMocks();
