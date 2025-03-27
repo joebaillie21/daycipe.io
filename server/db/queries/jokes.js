@@ -11,11 +11,10 @@ export const getCurrentJokes = async () => {
 }
 
 export const createJoke = async (jokeData) => {
-    const query = `INSERT INTO jokes (date, content, source) VALUES ($1, $2, $3) RETURNING id`;
+    const query = `INSERT INTO jokes (date, content) VALUES ($1, $2) RETURNING id`;
     const values = [
         jokeData.date,
-        jokeData.content,
-        jokeData.source
+        jokeData.content
     ];
     
     const result = await pool.query(query, values);

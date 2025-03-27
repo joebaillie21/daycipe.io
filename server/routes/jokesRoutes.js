@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { getCurrentJokes, getJokes } from "../db/queries/jokes.js";
+import { getCurrentJokes, getJokes, createJoke } from "../db/queries/jokes.js";
   
 // Get all jokes
 router.get("/", async (req, res) => {
@@ -37,9 +37,9 @@ router.post("/create", async (req, res) => {
             return;
         }
     
-        const requiredKeys = new Set(['date', 'content', 'source']);
-        for(const key in joke) {
-            if(!key in requiredKeys) {
+        const requiredKeys = new Set(['date', 'content']);
+        for(const key of requiredKeys) {
+            if(!(key in joke)) {
                 res.status(400).json({ error: `Missing required key: ${key}` });
                 return;
             }

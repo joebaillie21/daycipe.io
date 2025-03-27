@@ -31,15 +31,15 @@ router.get("/today", async (req, res) => {
 // Create new fact
 router.post("/create", async (req, res) => {
     try {
-        const fact = req.body.fact;
-        if(!fact) {
+        if(!req.body || !('fact' in req.body)) {
             res.status(400).json({error: `Request does not contain fact data.`});
             return;
         }
-    
-        const requiredKeys = new Set(['date', 'content', 'source', 'category']);
-        for(const key in fact) {
-            if(!key in requiredKeys) {
+        
+        const fact = req.body.fact;
+        const requiredKeys = ['date', 'content', 'source', 'category'];
+        for(const key of requiredKeys) {
+            if(!(key in fact)) {
                 res.status(400).json({ error: `Missing required key: ${key}` });
                 return;
             }
