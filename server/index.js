@@ -13,14 +13,14 @@ schemaInit();
 
 // Import routes
 import factsRoutes from "./routes/factsRoutes.js";
-// const jokesRoutes = require("./routes/jokesRoutes");
-// const recipiesRoutes = require("./routes/recipiesRoutes");
+import jokesRoutes from "./routes/jokesRoutes.js";
+import recipesRoutes from "./routes/recipesRoutes.js";
 // const reportsRoutes = require("./routes/reportsRoutes");
 
 // Use routes
 app.use("/api/facts", factsRoutes);
-// app.use("/api/jokes", jokesRoutes);
-// app.use("/api/recipies", recipiesRoutes);
+app.use("/api/jokes", jokesRoutes);
+app.use("/api/recipes", recipesRoutes);
 // app.use("/api/reports", reportsRoutes);
 
 // Start server

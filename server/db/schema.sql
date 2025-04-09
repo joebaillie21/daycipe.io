@@ -9,7 +9,7 @@ DROP TYPE IF EXISTS fact_category;
 -- Table for facts
 CREATE TYPE fact_category AS ENUM ('math', 'physics', 'bio', 'compsci', 'chem');
 
-CREATE TABLE  facts (
+CREATE TABLE facts (
     id SERIAL PRIMARY KEY,
     date DATE NOT NULL,
     content VARCHAR(1000) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE  facts (
 );
 
 -- Table for recipes
-CREATE TYPE recipe_category AS ENUM ('veganism', 'vegetarianism', 'lactose_intolerance', 'gluten_intolerance', 'kosher');
+CREATE TYPE recipe_category AS ENUM ('default', 'veganism', 'vegetarianism', 'lactose_intolerance', 'gluten_intolerance', 'kosher');
 
 CREATE TABLE recipes (
     id SERIAL PRIMARY KEY,
