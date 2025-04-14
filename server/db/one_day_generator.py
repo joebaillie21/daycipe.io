@@ -143,7 +143,7 @@ if __name__ == "__main__":
     today = datetime.date.today()
     date_string = today.strftime("%B %d")
     # The format of datestring is "Month Day" (e.g., "January 01")
-    date_string = "December 16"    # Uncomment this line to use a specific date in the format "Month Day"
+    # date_string = "December 16"    # Uncomment this line to use a specific date in the format "Month Day"
     print(f"Generating content for date: {date_string}")
 
     # Categories for recipes and facts

@@ -20,7 +20,7 @@ RECIPE_URL = "http://localhost:3001/api/recipes/create"
 # Current date (ISO format)
 today = date.today().isoformat()
 date_str = date.today().strftime("%B %d")
-date_str = "December 16"  # Uncomment this line to use the current date in the format "Month Day"
+# date_str = "December 16"  # Uncomment this line to use the current date in the format "Month Day"
 content_directory = "daily_outputs"
 
 # === POST JOKES ===
