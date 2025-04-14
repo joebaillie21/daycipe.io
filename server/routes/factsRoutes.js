@@ -63,6 +63,7 @@ router.post("/:id/upvote", async (req, res) => {
         
         const result = await upvoteFact(factId);
         res.json({ 
+            isShown: result.is_shown,
             success: true, 
             factId: result.id, 
             newScore: result.score 
@@ -83,6 +84,7 @@ router.post("/:id/downvote", async (req, res) => {
         
         const result = await downvoteFact(factId);
         res.json({ 
+            isShown: result.is_shown,
             success: true, 
             factId: result.id, 
             newScore: result.score 
