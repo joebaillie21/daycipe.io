@@ -40,7 +40,6 @@ export const downvoteJoke = async (jokeId) => {
     return updatedJoke;
 }
 
-// More flexible function to update visibility based on configurable rules
 const updateJokeVisibility = async (joke) => {
     const shouldBeShown = evaluateContentVisibility('joke', joke);
     

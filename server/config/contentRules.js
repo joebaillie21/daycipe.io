@@ -13,7 +13,6 @@ export const contentVisibilityRules = {
     }
   };
   
-  // This function allows for future extension with more complex rules
   export const evaluateContentVisibility = (type, content) => {
     if (!contentVisibilityRules[type]) {
       throw new Error(`Unknown content type: ${type}`);

@@ -42,7 +42,6 @@ export const downvoteFact = async (factId) => {
     return updatedFact;
 }
 
-// More flexible function to update visibility based on configurable rules
 const updateFactVisibility = async (fact) => {
     const shouldBeShown = evaluateContentVisibility('fact', fact);
     

@@ -41,7 +41,6 @@ export const downvoteRecipe = async (recipeId) => {
     return updatedRecipe;
 }
 
-// More flexible function to update visibility based on configurable rules
 const updateRecipeVisibility = async (recipe) => {
     const shouldBeShown = evaluateContentVisibility('recipe', recipe);
     
