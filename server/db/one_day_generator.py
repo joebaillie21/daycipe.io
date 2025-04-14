@@ -50,13 +50,15 @@ def setup_model():
     genai.configure(api_key=api_key)
     
     generation_config = {
-        "temperature": 0,
+        "temperature": 0.3,  # Otherwise the jokes are identical across days
         "max_output_tokens": 2048,
     }
     
     return genai.GenerativeModel("gemini-1.5-flash", generation_config=generation_config)
 
 def generate_recipe_of_the_day(model, date_str, category_input="default"):
+    # TODO: Currently all recipes across categories are pretty much identical. Need to edit more. 
+    # TODO BUG: The instrcutions section is sometimes a list of strings, and sometimes a single string. Need to improve prompting
     prompt = f"""
 Generate a concise, date-relevant recipe for {date_str} in JSON format with these fields:
 {{
@@ -78,7 +80,7 @@ Make the recipe contextually relevant to the day and month ({date_str}) by consi
 
 Ensure the entire JSON does not exceed 2000 characters. Keep instructions and ingredients concise but complete. Use readable cooking units.
 """
-
+    # TODO: make the generation agnostic to the model, the following 3 lines are only Gemini specific. 
     response = model.generate_content(prompt)
     output = response.text.strip()
     cleaned = extract_json_block(output)
@@ -90,8 +92,9 @@ Ensure the entire JSON does not exceed 2000 characters. Keep instructions and in
 
 
 def generate_jokes_of_the_day(model, date_str):
+    # 
     prompt = f"""
-Generate 3 separate jokes in JSON format as a list. Each joke must be under 500 characters. The jokes may optionally relate to today ({date_str}), but it's not required.
+Generate 3 separate jokes in JSON format as a list. Each joke must be under 500 characters. The jokes must relate to today ({date_str}).
 
 Format:
 ["joke1", "joke2", "joke3"]
@@ -106,7 +109,7 @@ Format:
 
 
 def generate_fact_of_the_day(model, date_str, category):
-    date_str = datetime.date.today().strftime("%B %d")
+    #TODO: Improve prompting to get more truthful answers
     prompt = f"""
 Generate one date-relevant fact for {date_str} in the category '{category}' in the following JSON format:
 {{
@@ -139,18 +142,23 @@ if __name__ == "__main__":
     # Get today's date for the recipe and fact generation
     today = datetime.date.today()
     date_string = today.strftime("%B %d")
+    # The format of datestring is "Month Day" (e.g., "January 01")
+    date_string = "December 16"    # Uncomment this line to use a specific date in the format "Month Day"
+    print(f"Generating content for date: {date_string}")
 
-
-    # Example categories for recipes and facts
-    # These can be expanded or modified as needed
+    # Categories for recipes and facts
+    # TODO: Extract into enums to be grabbed from schema.sql
     recipe_categories = ['default', 'veganism', 'vegetarianism', 'lactose_intolerance', 'gluten_intolerance', 'kosher']
-    fact_categories = ['mathematics', 'physics', 'biology', 'computer science', 'chemistry']
+    fact_categories = ['mathematics', 'physics', 'biology', 'computer science', 'chemistry'] # Full name was used for clarity
 
+    # Generate the content
+    # TODO: Add error handling for incorrect size generation
     all_recipes = {}
     for category in recipe_categories:
         print(f"Generating recipe for category: {category}")
         all_recipes[category] = generate_recipe_of_the_day(model, date_string, category)
 
+    print("Generating 3 jokes of the day...")
     all_jokes = generate_jokes_of_the_day(model, date_string)
     
     all_facts = {}
@@ -164,7 +172,3 @@ if __name__ == "__main__":
     save_json_to_file(all_recipes, f"recipes_{date_string}.json")
     save_json_to_file(all_jokes, f"jokes_{date_string}.json")
     save_json_to_file(all_facts, f"facts_{date_string}.json")
-
-    #print("🍽️ Recipe of the Day:\n", json.dumps(recipe, indent=2))
-    #print("\n😂 Jokes of the Day:\n", json.dumps(jokes, indent=2))
-    #print("\n🧠 Fact of the Day:\n", json.dumps(fact, indent=2))
