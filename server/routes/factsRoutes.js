@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { createFact, getCurrentFact, getFacts } from "../db/queries/facts.js";
+import { createFact, getCurrentFact, getFacts, upvoteFact, downvoteFact } from "../db/queries/facts.js";
   
 // Get all facts
 router.get("/", async (req, res) => {
@@ -49,6 +49,46 @@ router.post("/create", async (req, res) => {
         res.json({factId: id});
     } catch (error) {
         res.status(500).json({ error: `Failed to create fact: ${error}` });
+    }
+});
+
+// Upvote a fact
+router.post("/:id/upvote", async (req, res) => {
+    try {
+        const factId = parseInt(req.params.id);
+        if (isNaN(factId)) {
+            res.status(400).json({ error: "Invalid fact ID" });
+            return;
+        }
+        
+        const result = await upvoteFact(factId);
+        res.json({ 
+            success: true, 
+            factId: result.id, 
+            newScore: result.score 
+        });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to upvote fact: ${error}` });
+    }
+});
+
+// Downvote a fact
+router.post("/:id/downvote", async (req, res) => {
+    try {
+        const factId = parseInt(req.params.id);
+        if (isNaN(factId)) {
+            res.status(400).json({ error: "Invalid fact ID" });
+            return;
+        }
+        
+        const result = await downvoteFact(factId);
+        res.json({ 
+            success: true, 
+            factId: result.id, 
+            newScore: result.score 
+        });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to downvote fact: ${error}` });
     }
 });
 

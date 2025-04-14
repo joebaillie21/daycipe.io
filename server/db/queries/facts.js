@@ -1,4 +1,5 @@
 import { pool } from "../conn.js";
+import { evaluateContentVisibility } from "../../config/contentRules.js";
 
 export const getFacts = async () => {
     const result = await pool.query("SELECT * FROM facts");
@@ -21,4 +22,35 @@ export const createFact = async (factData) => {
     
     const result = await pool.query(query, values);
     return result.rows[0].id;
+}
+
+export const upvoteFact = async (factId) => {
+    const query = `UPDATE facts SET score = score + 1 WHERE id = $1 RETURNING *`;
+    const result = await pool.query(query, [factId]);
+    const updatedFact = result.rows[0];
+    
+    await updateFactVisibility(updatedFact);
+    return updatedFact;
+}
+
+export const downvoteFact = async (factId) => {
+    const query = `UPDATE facts SET score = score - 1 WHERE id = $1 RETURNING *`;
+    const result = await pool.query(query, [factId]);
+    const updatedFact = result.rows[0];
+    
+    await updateFactVisibility(updatedFact);
+    return updatedFact;
+}
+
+// More flexible function to update visibility based on configurable rules
+const updateFactVisibility = async (fact) => {
+    const shouldBeShown = evaluateContentVisibility('fact', fact);
+    
+    if (fact.is_shown !== shouldBeShown) {
+        await pool.query(
+            `UPDATE facts SET is_shown = $1 WHERE id = $2`,
+            [shouldBeShown, fact.id]
+        );
+        fact.is_shown = shouldBeShown;
+    }
 }

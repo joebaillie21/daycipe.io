@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { getCurrentRecipe, getRecipes, createRecipe } from "../db/queries/recipes.js";
+import { getCurrentRecipe, getRecipes, createRecipe, upvoteRecipe, downvoteRecipe } from "../db/queries/recipes.js";
   
 // Get all recipes
 router.get("/", async (req, res) => {
@@ -49,6 +49,46 @@ router.post("/create", async (req, res) => {
         res.json({recipeId: id});
     } catch (error) {
         res.status(500).json({ error: `Failed to create recipe: ${error}` });
+    }
+});
+
+// Upvote a recipe
+router.post("/:id/upvote", async (req, res) => {
+    try {
+        const recipeId = parseInt(req.params.id);
+        if (isNaN(recipeId)) {
+            res.status(400).json({ error: "Invalid recipe ID" });
+            return;
+        }
+        
+        const result = await upvoteRecipe(recipeId);
+        res.json({ 
+            success: true, 
+            recipeId: result.id, 
+            newScore: result.score 
+        });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to upvote recipe: ${error}` });
+    }
+});
+
+// Downvote a recipe
+router.post("/:id/downvote", async (req, res) => {
+    try {
+        const recipeId = parseInt(req.params.id);
+        if (isNaN(recipeId)) {
+            res.status(400).json({ error: "Invalid recipe ID" });
+            return;
+        }
+        
+        const result = await downvoteRecipe(recipeId);
+        res.json({ 
+            success: true, 
+            recipeId: result.id, 
+            newScore: result.score 
+        });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to downvote recipe: ${error}` });
     }
 });
 
