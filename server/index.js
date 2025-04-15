@@ -15,13 +15,13 @@ schemaInit();
 import factsRoutes from "./routes/factsRoutes.js";
 import jokesRoutes from "./routes/jokesRoutes.js";
 import recipesRoutes from "./routes/recipesRoutes.js";
-// const reportsRoutes = require("./routes/reportsRoutes");
+import reportsRoutes from "./routes/reportsRoutes.js";
 
 // Use routes
 app.use("/api/facts", factsRoutes);
 app.use("/api/jokes", jokesRoutes);
 app.use("/api/recipes", recipesRoutes);
-// app.use("/api/reports", reportsRoutes);
+app.use("/api/reports", reportsRoutes);
 
 // Start server
 app.listen(PORT, () => {
