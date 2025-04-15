@@ -1,7 +1,7 @@
 import request from "supertest";
 import express, {json} from "express";
 import jokesRouter from "../routes/jokesRoutes.js";
-import { getCurrentJokes, getJokes, createJoke } from "../db/queries/jokes.js";
+import { getCurrentJokes, getJokes, createJoke, upvoteJoke, downvoteJoke } from "../db/queries/jokes.js";
 
 jest.mock("../db/queries/jokes.js");
 
@@ -131,5 +131,103 @@ describe("POST endpoints", () => {
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe("Failed to create joke: Error: Failed to create joke");
+  });
+});
+
+describe("Vote endpoints", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // UPVOTE TESTS
+  
+  // Test successful upvote operation for jokes
+  test("POST /jokes/:id/upvote should upvote a joke", async () => {
+    const mockResult = { id: 1, content: "Test joke", score: 5, is_shown: true };
+    upvoteJoke.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/jokes/1/upvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      jokeId: 1,
+      newScore: 5,
+      isShown: true
+    });
+    expect(upvoteJoke).toHaveBeenCalledWith(1);
+  });
+
+  // Test upvote with invalid joke ID format
+  test("POST /jokes/:id/upvote should return 400 for invalid ID", async () => {
+    const response = await request(app).post("/jokes/invalid/upvote");
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid joke ID" });
+    expect(upvoteJoke).not.toHaveBeenCalled();
+  });
+
+  // Test error handling when joke upvote operation fails
+  test("POST /jokes/:id/upvote should handle errors", async () => {
+    upvoteJoke.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app).post("/jokes/1/upvote");
+    
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Failed to upvote joke: Error: Database error" });
+  });
+
+  // DOWNVOTE TESTS
+  
+  // Test successful downvote operation for jokes
+  test("POST /jokes/:id/downvote should downvote a joke", async () => {
+    const mockResult = { id: 1, content: "Test joke", score: 3, is_shown: true };
+    downvoteJoke.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/jokes/1/downvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      jokeId: 1,
+      newScore: 3,
+      isShown: true
+    });
+    expect(downvoteJoke).toHaveBeenCalledWith(1);
+  });
+
+  // Test downvote with invalid joke ID format
+  test("POST /jokes/:id/downvote should return 400 for invalid ID", async () => {
+    const response = await request(app).post("/jokes/invalid/downvote");
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid joke ID" });
+    expect(downvoteJoke).not.toHaveBeenCalled();
+  });
+
+  // Test error handling when joke downvote operation fails
+  test("POST /jokes/:id/downvote should handle errors", async () => {
+    downvoteJoke.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app).post("/jokes/1/downvote");
+    
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Failed to downvote joke: Error: Database error" });
+  });
+
+  // Test that is_shown flag is properly updated for jokes when score drops below threshold
+  test("POST /jokes/:id/downvote should reflect when content is hidden", async () => {
+    const mockResult = { id: 1, content: "Test joke", score: -6, is_shown: false };
+    downvoteJoke.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/jokes/1/downvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      jokeId: 1,
+      newScore: -6,
+      isShown: false
+    });
   });
 });

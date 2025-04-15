@@ -1,7 +1,7 @@
 import request from "supertest";
 import express, {json} from "express";
 import factsRouter from "../routes/factsRoutes.js";
-import { getCurrentFact, getFacts, createFact } from "../db/queries/facts.js";
+import { getCurrentFact, getFacts, createFact, upvoteFact, downvoteFact } from "../db/queries/facts.js";
 
 jest.mock("../db/queries/facts.js");
 
@@ -134,5 +134,103 @@ describe("POST endpoints", () => {
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe("Failed to create fact: Error: Failed to create fact");
+  });
+});
+
+describe("Vote endpoints", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // UPVOTE TESTS
+  
+  // Test successful upvote operation
+  test("POST /facts/:id/upvote should upvote a fact", async () => {
+    const mockResult = { id: 1, content: "Test fact", score: 5, is_shown: true };
+    upvoteFact.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/facts/1/upvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      factId: 1,
+      newScore: 5,
+      isShown: true
+    });
+    expect(upvoteFact).toHaveBeenCalledWith(1);
+  });
+
+  // Test upvote with invalid fact ID format
+  test("POST /facts/:id/upvote should return 400 for invalid ID", async () => {
+    const response = await request(app).post("/facts/invalid/upvote");
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid fact ID" });
+    expect(upvoteFact).not.toHaveBeenCalled();
+  });
+
+  // Test error handling when upvote operation fails
+  test("POST /facts/:id/upvote should handle errors", async () => {
+    upvoteFact.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app).post("/facts/1/upvote");
+    
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Failed to upvote fact: Error: Database error" });
+  });
+
+  // DOWNVOTE TESTS
+  
+  // Test successful downvote operation
+  test("POST /facts/:id/downvote should downvote a fact", async () => {
+    const mockResult = { id: 1, content: "Test fact", score: 3, is_shown: true };
+    downvoteFact.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/facts/1/downvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      factId: 1,
+      newScore: 3,
+      isShown: true
+    });
+    expect(downvoteFact).toHaveBeenCalledWith(1);
+  });
+
+  // Test downvote with invalid fact ID format
+  test("POST /facts/:id/downvote should return 400 for invalid ID", async () => {
+    const response = await request(app).post("/facts/invalid/downvote");
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid fact ID" });
+    expect(downvoteFact).not.toHaveBeenCalled();
+  });
+
+  // Test error handling when downvote operation fails
+  test("POST /facts/:id/downvote should handle errors", async () => {
+    downvoteFact.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app).post("/facts/1/downvote");
+    
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Failed to downvote fact: Error: Database error" });
+  });
+
+  // Test that is_shown flag is updated when score drops below threshold
+  test("POST /facts/:id/downvote should reflect when content is hidden", async () => {
+    const mockResult = { id: 1, content: "Test fact", score: -6, is_shown: false };
+    downvoteFact.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/facts/1/downvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      factId: 1,
+      newScore: -6,
+      isShown: false
+    });
   });
 });

@@ -1,7 +1,7 @@
 import request from "supertest";
 import express, {json} from "express";
 import recipesRouter from "../routes/recipesRoutes.js";
-import { getRecipes, getCurrentRecipe, createRecipe } from "../db/queries/recipes.js";
+import { getRecipes, getCurrentRecipe, createRecipe, upvoteRecipe, downvoteRecipe } from "../db/queries/recipes.js";
 
 jest.mock("../db/queries/recipes.js");
 
@@ -133,5 +133,103 @@ describe("POST endpoints", () => {
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe("Failed to create recipe: Error: Failed to create recipe");
+  });
+});
+
+describe("Vote endpoints", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // UPVOTE TESTS
+  
+  // Test successful upvote operation for recipes
+  test("POST /recipes/:id/upvote should upvote a recipe", async () => {
+    const mockResult = { id: 1, content: "Test recipe", score: 5, is_shown: true };
+    upvoteRecipe.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/recipes/1/upvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      recipeId: 1,
+      newScore: 5,
+      isShown: true
+    });
+    expect(upvoteRecipe).toHaveBeenCalledWith(1);
+  });
+
+  // Test upvote with invalid recipe ID format
+  test("POST /recipes/:id/upvote should return 400 for invalid ID", async () => {
+    const response = await request(app).post("/recipes/invalid/upvote");
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid recipe ID" });
+    expect(upvoteRecipe).not.toHaveBeenCalled();
+  });
+
+  // Test error handling when recipe upvote operation fails
+  test("POST /recipes/:id/upvote should handle errors", async () => {
+    upvoteRecipe.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app).post("/recipes/1/upvote");
+    
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Failed to upvote recipe: Error: Database error" });
+  });
+
+  // DOWNVOTE TESTS
+  
+  // Test successful downvote operation for recipes
+  test("POST /recipes/:id/downvote should downvote a recipe", async () => {
+    const mockResult = { id: 1, content: "Test recipe", score: 3, is_shown: true };
+    downvoteRecipe.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/recipes/1/downvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      recipeId: 1,
+      newScore: 3,
+      isShown: true
+    });
+    expect(downvoteRecipe).toHaveBeenCalledWith(1);
+  });
+
+  // Test downvote with invalid recipe ID format
+  test("POST /recipes/:id/downvote should return 400 for invalid ID", async () => {
+    const response = await request(app).post("/recipes/invalid/downvote");
+    
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid recipe ID" });
+    expect(downvoteRecipe).not.toHaveBeenCalled();
+  });
+
+  // Test error handling when recipe downvote operation fails
+  test("POST /recipes/:id/downvote should handle errors", async () => {
+    downvoteRecipe.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app).post("/recipes/1/downvote");
+    
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Failed to downvote recipe: Error: Database error" });
+  });
+
+  // Test that is_shown flag is properly updated for recipes when score drops below threshold
+  test("POST /recipes/:id/downvote should reflect when content is hidden", async () => {
+    const mockResult = { id: 1, content: "Test recipe", score: -6, is_shown: false };
+    downvoteRecipe.mockResolvedValue(mockResult);
+
+    const response = await request(app).post("/recipes/1/downvote");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      recipeId: 1,
+      newScore: -6,
+      isShown: false
+    });
   });
 });

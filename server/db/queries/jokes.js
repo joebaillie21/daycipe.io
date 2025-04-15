@@ -1,4 +1,5 @@
 import { pool } from "../conn.js";
+import { evaluateContentVisibility } from "../../config/contentRules.js";
 
 export const getJokes = async () => {
     const result = await pool.query("SELECT * FROM jokes");
@@ -19,4 +20,34 @@ export const createJoke = async (jokeData) => {
     
     const result = await pool.query(query, values);
     return result.rows[0].id;
+}
+
+export const upvoteJoke = async (jokeId) => {
+    const query = `UPDATE jokes SET score = score + 1 WHERE id = $1 RETURNING *`;
+    const result = await pool.query(query, [jokeId]);
+    const updatedJoke = result.rows[0];
+    
+    await updateJokeVisibility(updatedJoke);
+    return updatedJoke;
+}
+
+export const downvoteJoke = async (jokeId) => {
+    const query = `UPDATE jokes SET score = score - 1 WHERE id = $1 RETURNING *`;
+    const result = await pool.query(query, [jokeId]);
+    const updatedJoke = result.rows[0];
+    
+    await updateJokeVisibility(updatedJoke);
+    return updatedJoke;
+}
+
+const updateJokeVisibility = async (joke) => {
+    const shouldBeShown = evaluateContentVisibility('joke', joke);
+    
+    if (joke.is_shown !== shouldBeShown) {
+        await pool.query(
+            `UPDATE jokes SET is_shown = $1 WHERE id = $2`,
+            [shouldBeShown, joke.id]
+        );
+        joke.is_shown = shouldBeShown;
+    }
 }
