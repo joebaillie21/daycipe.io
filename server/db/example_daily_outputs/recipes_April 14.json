@@ -1,0 +1,256 @@
+{
+  "default": {
+    "title": "Spring Asparagus & Lemon Pasta",
+    "description": "A light pasta dish celebrating fresh spring asparagus, perfect for a mild April 14th.",
+    "ingredients": {
+      "Asparagus": {
+        "amount": 1,
+        "unit": "bunch"
+      },
+      "Pasta": {
+        "amount": 8,
+        "unit": "oz"
+      },
+      "Lemon": {
+        "amount": 1,
+        "unit": ""
+      },
+      "Olive Oil": {
+        "amount": 2,
+        "unit": "tbsp"
+      },
+      "Garlic": {
+        "amount": 2,
+        "unit": "cloves"
+      },
+      "Parmesan Cheese": {
+        "amount": 0.5,
+        "unit": "cup",
+        "notes": "grated"
+      }
+    },
+    "instructions": [
+      "Cook pasta. ",
+      "Roast asparagus (400F, 10 min).",
+      "Sauté garlic in olive oil.",
+      "Add asparagus, lemon juice & zest.",
+      "Toss with pasta & parmesan."
+    ],
+    "cook_time": "20 minutes",
+    "serving_size": 2,
+    "category": "pasta"
+  },
+  "veganism": {
+    "title": "Spring Asparagus & Lemon Pasta",
+    "description": "A light, vegan pasta dish celebrating fresh spring asparagus, perfect for a warm April 14th.",
+    "ingredients": {
+      "asparagus": {
+        "amount": 1,
+        "unit": "bunch"
+      },
+      "pasta": {
+        "amount": 8,
+        "unit": "oz"
+      },
+      "lemon": {
+        "amount": 1,
+        "unit": ""
+      },
+      "garlic": {
+        "amount": 2,
+        "unit": "cloves"
+      },
+      "vegan butter": {
+        "amount": 2,
+        "unit": "tbsp"
+      },
+      "vegan parmesan": {
+        "amount": 0.25,
+        "unit": "cup"
+      },
+      "salt": {
+        "amount": 0.5,
+        "unit": "tsp"
+      },
+      "pepper": {
+        "amount": 0.25,
+        "unit": "tsp"
+      }
+    },
+    "instructions": [
+      "Cook pasta. Saute garlic in butter. Add asparagus, cook until tender. Toss with pasta, lemon juice, zest, parmesan, salt & pepper."
+    ],
+    "cook_time": "20 minutes",
+    "serving_size": 2,
+    "category": "vegan"
+  },
+  "vegetarianism": {
+    "title": "Spring Asparagus & Lemon Pasta",
+    "description": "A light, fresh pasta dish perfect for a warm April day, celebrating the arrival of spring asparagus.",
+    "ingredients": {
+      "Asparagus": {
+        "amount": 1,
+        "unit": "bunch"
+      },
+      "Pasta": {
+        "amount": 8,
+        "unit": "oz"
+      },
+      "Lemon": {
+        "amount": 1,
+        "unit": ""
+      },
+      "Olive Oil": {
+        "amount": 2,
+        "unit": "tbsp"
+      },
+      "Garlic": {
+        "amount": 2,
+        "unit": "cloves"
+      },
+      "Parmesan Cheese": {
+        "amount": 0.5,
+        "unit": "cup",
+        "notes": "grated"
+      }
+    },
+    "instructions": [
+      "Cook pasta. ",
+      "Snap off asparagus ends, sauté with garlic in olive oil. ",
+      "Add cooked pasta, lemon juice & zest. ",
+      "Toss with parmesan."
+    ],
+    "cook_time": "20 minutes",
+    "serving_size": 2,
+    "category": "vegetarian"
+  },
+  "lactose_intolerance": {
+    "title": "Spring Asparagus & Lemon Pasta",
+    "description": "A light, lactose-free pasta dish celebrating fresh spring asparagus, perfect for a warm April 14th.",
+    "ingredients": {
+      "Asparagus": {
+        "amount": 1,
+        "unit": "bunch"
+      },
+      "Pasta": {
+        "amount": 8,
+        "unit": "oz"
+      },
+      "Lemon": {
+        "amount": 1,
+        "unit": ""
+      },
+      "Olive Oil": {
+        "amount": 2,
+        "unit": "tbsp"
+      },
+      "Garlic": {
+        "amount": 2,
+        "unit": "cloves"
+      },
+      "Salt": {
+        "amount": 1,
+        "unit": "tsp"
+      },
+      "Pepper": {
+        "amount": 0.5,
+        "unit": "tsp"
+      }
+    },
+    "instructions": [
+      "Cook pasta. ",
+      "Roast asparagus (400F, 10 min).",
+      "Sauté garlic in olive oil.",
+      "Add asparagus, lemon juice & zest, salt, pepper.",
+      "Toss with pasta."
+    ],
+    "cook_time": "20 minutes",
+    "serving_size": 2,
+    "category": "lactose_intolerance"
+  },
+  "gluten_intolerance": {
+    "title": "Spring Asparagus & Lemon Risotto (GF)",
+    "description": "A light, gluten-free risotto celebrating the arrival of spring asparagus on April 14th.",
+    "ingredients": {
+      "Asparagus": {
+        "amount": 1,
+        "unit": "bunch"
+      },
+      "Arborio Rice": {
+        "amount": 1,
+        "unit": "cup"
+      },
+      "Vegetable Broth": {
+        "amount": 4,
+        "unit": "cups"
+      },
+      "Lemon": {
+        "amount": 1,
+        "unit": ""
+      },
+      "Parmesan Cheese (GF)": {
+        "amount": 0.5,
+        "unit": "cup"
+      },
+      "Olive Oil": {
+        "amount": 2,
+        "unit": "tbsp"
+      },
+      "Shallots": {
+        "amount": 2,
+        "unit": ""
+      }
+    },
+    "instructions": [
+      "Sauté shallots in olive oil. Add rice, toast briefly.",
+      "Gradually add warm broth, stirring constantly until absorbed.",
+      "Add asparagus (chopped) halfway through cooking.",
+      "Stir in lemon zest & juice, parmesan.",
+      "Serve immediately."
+    ],
+    "cook_time": "30 minutes",
+    "serving_size": 2,
+    "category": "gluten_intolerance"
+  },
+  "kosher": {
+    "title": "Spring Asparagus & Lemon Pasta",
+    "description": "A light, bright pasta dish perfect for a spring evening on April 14th, using seasonal asparagus.",
+    "ingredients": {
+      "Asparagus": {
+        "amount": 1,
+        "unit": "bunch"
+      },
+      "Pasta": {
+        "amount": 8,
+        "unit": "oz"
+      },
+      "Lemon": {
+        "amount": 1,
+        "unit": ""
+      },
+      "Olive Oil": {
+        "amount": 2,
+        "unit": "tbsp"
+      },
+      "Garlic": {
+        "amount": 2,
+        "unit": "cloves"
+      },
+      "Parmesan Cheese": {
+        "amount": 0.5,
+        "unit": "cup",
+        "notes": "grated"
+      }
+    },
+    "instructions": [
+      "Cook pasta. ",
+      "Roast asparagus (400F, 10 min).",
+      "Sauté garlic in olive oil.",
+      "Add asparagus, lemon juice & zest.",
+      "Toss with pasta & parmesan."
+    ],
+    "cook_time": "20 minutes",
+    "serving_size": 2,
+    "category": "kosher"
+  }
+}

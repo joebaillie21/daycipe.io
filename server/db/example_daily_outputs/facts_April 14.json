@@ -1,0 +1,22 @@
+{
+  "mathematics": {
+    "fact": "April 14th, 1879, saw the birth of Albert Einstein, a pivotal figure in the history of mathematics and physics. His theories of relativity revolutionized our understanding of space, time, gravity, and the universe, significantly impacting mathematical frameworks and inspiring new areas of mathematical research.",
+    "source": "Britannica.com: Albert Einstein"
+  },
+  "physics": {
+    "fact": "On April 14, 1970, the Apollo 13 mission experienced a critical oxygen tank explosion, showcasing the crucial role of physics in spacecraft design and emergency procedures.  Understanding principles like thermodynamics and fluid mechanics were vital for the crew's survival and safe return.",
+    "source": "NASA History website: https://history.nasa.gov/ap13.html"
+  },
+  "biology": {
+    "fact": "April 14th marks the anniversary of the birth of  the renowned biologist and geneticist, Barbara McClintock (1902).  Her groundbreaking work on transposable elements, or 'jumping genes', earned her the Nobel Prize in Physiology or Medicine in 1983, revolutionizing our understanding of genetics and genome dynamics.",
+    "source": "NobelPrize.org.  \"Barbara McClintock - Biographical.\" NobelPrize.org, Nobel Media AB 2023. https://www.nobelprize.org/prizes/medicine/1983/mcclintock/biographical/"
+  },
+  "computer science": {
+    "fact": "On April 14, 1973, the ARPANET, a precursor to the modern internet, experienced its first ever denial-of-service attack.  A rogue program overwhelmed the system, highlighting early network security vulnerabilities and the need for robust protocols.",
+    "source": "Leiner, B. M., Cerf, V. G., Clark, D. D., Kahn, R. E., Kleinrock, L., & Roberts, L. G. (2000). The history of the Internet. Communications of the ACM, 43(3), 23-32."
+  },
+  "chemistry": {
+    "fact": "On April 14, 1865, just days after the assassination of Abraham Lincoln, the Confederate States of America formally surrendered, marking a significant turning point in the American Civil War.  This event indirectly impacted the development of chemistry, as post-war industrialization and technological advancements spurred significant growth in chemical research and manufacturing in the United States.",
+    "source": "National Park Service:  https://www.nps.gov/civilwar/index.htm (General information on the Civil War and its aftermath)"
+  }
+}

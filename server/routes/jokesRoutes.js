@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { getCurrentJokes, getJokes, createJoke } from "../db/queries/jokes.js";
+import { getCurrentJokes, getJokes, createJoke, upvoteJoke, downvoteJoke } from "../db/queries/jokes.js";
   
 // Get all jokes
 router.get("/", async (req, res) => {
@@ -49,6 +49,48 @@ router.post("/create", async (req, res) => {
         res.json({jokeId: id});
     } catch (error) {
         res.status(500).json({ error: `Failed to create joke: ${error}` });
+    }
+});
+
+// Upvote a joke
+router.post("/:id/upvote", async (req, res) => {
+    try {
+        const jokeId = parseInt(req.params.id);
+        if (isNaN(jokeId)) {
+            res.status(400).json({ error: "Invalid joke ID" });
+            return;
+        }
+        
+        const result = await upvoteJoke(jokeId);
+        res.json({ 
+            isShown: result.is_shown,
+            success: true, 
+            jokeId: result.id, 
+            newScore: result.score 
+        });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to upvote joke: ${error}` });
+    }
+});
+
+// Downvote a joke
+router.post("/:id/downvote", async (req, res) => {
+    try {
+        const jokeId = parseInt(req.params.id);
+        if (isNaN(jokeId)) {
+            res.status(400).json({ error: "Invalid joke ID" });
+            return;
+        }
+        
+        const result = await downvoteJoke(jokeId);
+        res.json({ 
+            isShown: result.is_shown,
+            success: true, 
+            jokeId: result.id, 
+            newScore: result.score 
+        });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to downvote joke: ${error}` });
     }
 });
 
