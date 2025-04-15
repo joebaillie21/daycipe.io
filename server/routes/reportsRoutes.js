@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { getReports, getContentSpecificReports, createReport } from "../db/queries/reports.js";
+import { getReports, getContentSpecificReport, createReport } from "../db/queries/reports.js";
 
 // Get all reports
 router.get("/", async (req, res) => {
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
 router.get("/content/:type/:id", async (req, res) => {
     try {
         const { type, id } = req.params;
-        const clubs = await getContentSpecificReports(type, id);
+        const clubs = await getContentSpecificReport(type, id);
         res.json(clubs);
     } catch (error) {
         res.status(500).json({ error: "Failed to get reports" });
