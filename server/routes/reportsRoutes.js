@@ -1,15 +1,19 @@
 import { Router } from "express";
 const router = Router();
 
-import { getReports, getContentSpecificReports, createReport } from "../db/queries/reports.js";
+import { getReports, getContentSpecificReport, createReport } from "../db/queries/reports.js";
 
 // Get all reports
 router.get("/", async (req, res) => {
     try {
         const clubs = await getReports();
         res.json(clubs);
+        if (!clubs) {
+            res.status(404).json({ error: "No reports for this content exist." });
+            return;
+        }
     } catch (error) {
-        res.status(500).json({ error: "Failed to get reports" });
+        res.status(500).json({ error: "Failed to retrieve reports" });
     }
 });
 
@@ -17,7 +21,11 @@ router.get("/", async (req, res) => {
 router.get("/content/:type/:id", async (req, res) => {
     try {
         const { type, id } = req.params;
-        const clubs = await getContentSpecificReports(type, id);
+        const clubs = await getContentSpecificReport(type, id);
+        if (!clubs) {
+            res.status(404).json({ error: "No reports found." });
+            return;
+        }
         res.json(clubs);
     } catch (error) {
         res.status(500).json({ error: "Failed to get reports" });
