@@ -6,10 +6,34 @@ export const getRecipes = async () => {
     return result.rows;
 };
 
-export const getCurrentRecipe = async () => {
-    const result = await pool.query("SELECT * FROM recipes WHERE recipes.date=CURRENT_DATE LIMIT 3");
-    return result.rows[0];
-}
+export const getCurrentRecipe = async (category = null) => {
+    // old behavior
+    if (category === null) {
+        const result = await pool.query("SELECT * FROM recipes WHERE recipes.date=CURRENT_DATE LIMIT 1");
+        return result.rows[0];
+    }
+    
+    // new behavior
+    const query = `
+        SELECT * FROM recipes 
+        WHERE recipes.date=CURRENT_DATE AND recipes.category=$1 
+        LIMIT 1
+    `;
+    const result = await pool.query(query, [category]);
+    return result.rows[0] || null;
+};
+
+// new function to get all recipes for today (one per category)
+export const getAllCategoryRecipesForToday = async () => {
+    const query = `
+        SELECT DISTINCT ON (category) *
+        FROM recipes
+        WHERE date = CURRENT_DATE AND is_shown = TRUE
+        ORDER BY category, score DESC
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+};
 
 export const createRecipe = async (recipeData) => {
     const query = `INSERT INTO recipes (date, content, category) VALUES ($1, $2, $3) RETURNING id`;

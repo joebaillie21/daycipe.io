@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { getCurrentRecipe, getRecipes, createRecipe, upvoteRecipe, downvoteRecipe } from "../db/queries/recipes.js";
+import { getCurrentRecipe, getRecipes, createRecipe, upvoteRecipe, downvoteRecipe, getAllCategoryRecipesForToday } from "../db/queries/recipes.js";
   
 // Get all recipes
 router.get("/", async (req, res) => {
@@ -13,18 +13,33 @@ try {
 }
 });
 
-// Get the current date's recipe
+// Get the current date's recipe - with optional category parameter
 router.get("/today", async (req, res) => {
     try {
-        const clubs = await getCurrentRecipe();
-        if(!clubs) {
-            res.status(404).json({error: "No recipes of the day found."});
+        // Check if a category parameter is provided
+        const { category } = req.query;
+        
+        // If category=all is specified, return one recipe per category
+        if (category === 'all') {
+            const recipes = await getAllCategoryRecipesForToday();
+            if (recipes.length === 0) {
+                res.status(404).json({error: "No recipes of the day found."});
+                return;
+            }
+            res.json(recipes);
+            return;
+        }
+        
+        // For backward compatibility or specific category
+        const recipe = await getCurrentRecipe(category || null);
+        if (!recipe) {
+            res.status(404).json({error: "No recipe of the day found."});
             return;
         }
 
-        res.json(clubs);
+        res.json(recipe);
     } catch (error) {
-        res.status(500).json({ error: "Failed to get recipes" });
+        res.status(500).json({ error: `Failed to get recipes: ${error.message}` });
     }
 });
 
