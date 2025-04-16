@@ -1,7 +1,7 @@
 import request from "supertest";
 import express, {json} from "express";
 import recipesRouter from "../routes/recipesRoutes.js";
-import { getRecipes, getCurrentRecipe, createRecipe, upvoteRecipe, downvoteRecipe } from "../db/queries/recipes.js";
+import { getRecipes, getCurrentRecipe, createRecipe, upvoteRecipe, downvoteRecipe, getAllCategoryRecipesForToday } from "../db/queries/recipes.js";
 
 jest.mock("../db/queries/recipes.js");
 
@@ -29,8 +29,8 @@ describe("GET Endpoints", () => {
   });
 
   // Success path for /recipes/today
-  test("GET /recipes/today should return today's recipes", async () => {
-    const mockRecipe = { id: 1, recipe: "recipe of the day" };
+  test("GET /recipes/today without category should return today's recipe (backward compatibility)", async () => {
+    const mockRecipe = { id: 1, recipe: "recipe of the day", category: "default" };
     getCurrentRecipe.mockResolvedValue(mockRecipe);
 
     const response = await request(app).get("/recipes/today");
@@ -38,6 +38,49 @@ describe("GET Endpoints", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockRecipe);
     expect(getCurrentRecipe).toHaveBeenCalledTimes(1);
+    expect(getCurrentRecipe).toHaveBeenCalledWith(null);
+  });
+  
+  // Test for specific category recipe
+  test("GET /recipes/today with category parameter should return recipe for that category", async () => {
+    const mockRecipe = { id: 2, recipe: "vegan recipe", category: "veganism" };
+    getCurrentRecipe.mockResolvedValue(mockRecipe);
+
+    const response = await request(app).get("/recipes/today?category=veganism");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockRecipe);
+    expect(getCurrentRecipe).toHaveBeenCalledTimes(1);
+    expect(getCurrentRecipe).toHaveBeenCalledWith("veganism");
+  });
+  
+  // Test for all categories
+  test("GET /recipes/today?category=all should return one recipe per category", async () => {
+    const mockCategoryRecipes = [
+      { id: 1, recipe: "default recipe", category: "default", score: 5, is_shown: true },
+      { id: 2, recipe: "vegan recipe", category: "veganism", score: 3, is_shown: true },
+      { id: 3, recipe: "vegetarian recipe", category: "vegetarianism", score: 8, is_shown: true }
+    ];
+    
+    getAllCategoryRecipesForToday.mockResolvedValue(mockCategoryRecipes);
+
+    const response = await request(app).get("/recipes/today?category=all");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockCategoryRecipes);
+    expect(getAllCategoryRecipesForToday).toHaveBeenCalledTimes(1);
+    expect(getCurrentRecipe).not.toHaveBeenCalled();
+  });
+  
+  // Test for empty result with all categories
+  test("GET /recipes/today?category=all should return 404 when no recipes found", async () => {
+    getAllCategoryRecipesForToday.mockResolvedValue([]);
+
+    const response = await request(app).get("/recipes/today?category=all");
+    
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "No recipes of the day found." });
+    expect(getAllCategoryRecipesForToday).toHaveBeenCalledTimes(1);
   });
 
   // Alternate path for 'no recipe found'
@@ -47,8 +90,20 @@ describe("GET Endpoints", () => {
     const response = await request(app).get("/recipes/today");
     
     expect(response.status).toBe(404);
-    expect(response.body).toEqual({ error: "No recipes of the day found." });
+    expect(response.body).toEqual({ error: "No recipe of the day found." });
     expect(getCurrentRecipe).toHaveBeenCalledTimes(1);
+  });
+  
+  // Test for no recipe found in specific category
+  test("GET /recipes/today with category should return 404 if no recipe found for that category", async () => {
+    getCurrentRecipe.mockResolvedValue(null);
+
+    const response = await request(app).get("/recipes/today?category=kosher");
+    
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "No recipe of the day found." });
+    expect(getCurrentRecipe).toHaveBeenCalledTimes(1);
+    expect(getCurrentRecipe).toHaveBeenCalledWith("kosher");
   });
 
   // Alternate paths for server errors
@@ -67,7 +122,16 @@ describe("GET Endpoints", () => {
     const response = await request(app).get("/recipes/today");
 
     expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: "Failed to get recipes" });
+    expect(response.body).toEqual({ error: "Failed to get recipes: Database error" });
+  });
+  
+  test("GET /recipes/today?category=all should handle errors gracefully", async () => {
+    getAllCategoryRecipesForToday.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app).get("/recipes/today?category=all");
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Failed to get recipes: Database error" });
   });
 
 });
