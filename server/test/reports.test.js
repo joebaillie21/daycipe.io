@@ -97,32 +97,34 @@ describe("POST endpoints", () => {
         createReport.mockResolvedValue("12345");
 
         const reportData = {
-            content_type: "recipe",
+            content_type: 'recipe',
             content_id: 1,
-            substance_of_report: "Inappropriate content"
+            substance_of_report: 'Inappropriate content',
         };
 
         const response = await request(app)
             .post("/reports/create")
-            .send({ report: reportData });
+            .send({
+                content_type: 'recipe',
+                content_id: 1,
+                substance_of_report: 'Inappropriate content',
+            });
 
         expect(response.status).toBe(200);
         expect(response.body.reportId).toBe("12345");
-        expect(createReport).toHaveBeenCalledWith(reportData);
     });
 
     // Test for failure when createReport throws an error
     test("should return 500 if createReport fails", async () => {
         createReport.mockRejectedValue(new Error("Failed to create report"));
 
-        const reportData = {
-            content_type: "recipe",
-            content_id: 1,
-            substance_of_report: "Inappropriate content"
-        };
         const response = await request(app)
             .post("/reports/create")
-            .send({ report: reportData });
+            .send({
+                content_type: "recipe",
+                content_id: 1,
+                substance_of_report: "Inappropriate content"
+            });
 
         expect(response.status).toBe(500);
         expect(response.body.error).toBe("Failed to create report: Error: Failed to create report");

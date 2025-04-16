@@ -35,8 +35,11 @@ router.get("/content/:type/:id", async (req, res) => {
 // Create new report
 router.post("/create", async (req, res) => {
     try {
-        const { content_type, content_id, substance_of_report } = req.body;
+        const content_id = req.body.content_id;
+        const content_type = req.body.content_type;
+        const substance_of_report = req.body.substance_of_report;
         if (!content_type || !content_id || !substance_of_report) {
+            console.log(content_type, content_id, substance_of_report);
             res.status(400).json({ error: `Request does not contain all required fields.` });
             return;
         }
