@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
         const clubs = await getReports();
         res.json(clubs);
         if (!clubs) {
-            res.status(404).json({ error: "No reports for this content exist." });
+            res.status(404).json({ error: "No reports found." });
             return;
         }
     } catch (error) {
@@ -23,12 +23,12 @@ router.get("/content/:type/:id", async (req, res) => {
         const { type, id } = req.params;
         const clubs = await getContentSpecificReport(type, id);
         if (!clubs) {
-            res.status(404).json({ error: "No reports found." });
+            res.status(404).json({ error: "No reports found for this content." });
             return;
         }
         res.json(clubs);
     } catch (error) {
-        res.status(500).json({ error: "Failed to get reports" });
+        res.status(500).json({ error: "Failed to retrieve reports" });
     }
 });
 

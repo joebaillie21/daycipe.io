@@ -51,7 +51,7 @@ describe("GET Endpoints", () => {
         const response = await request(app).get("/reports/content/joke/1");
 
         expect(response.status).toBe(404);
-        expect(response.body).toEqual({ error: "No reports for this content exist." });
+        expect(response.body).toEqual({ error: "No reports found for this content." });
         expect(getContentSpecificReport).toHaveBeenCalledTimes(1);
     });
 
@@ -62,7 +62,7 @@ describe("GET Endpoints", () => {
         const response = await request(app).get("/reports");
 
         expect(response.status).toBe(500);
-        expect(response.body).toEqual({ error: "Failed to get reports" });
+        expect(response.body).toEqual({ error: "Failed to retrieve reports" });
     });
 
     test("GET /reports/content/:type/:id should handle errors gracefully", async () => {
