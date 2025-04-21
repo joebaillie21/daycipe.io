@@ -1,9 +1,9 @@
 import request from "supertest";
 import express, { json } from "express";
-import reportRouter from "../routes/reportsRoutes.js";
-import { getContentSpecificReport, createReport, getReports } from "../db/queries/reports.js";
+import reportRouter from "../../routes/reportsRoutes.js";
+import { getContentSpecificReport, createReport, getReports } from "../../db/queries/reports.js";
 
-jest.mock("../db/queries/reports.js");
+jest.mock("../../db/queries/reports.js");
 
 const app = express();
 app.use(json());

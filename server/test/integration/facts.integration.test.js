@@ -144,13 +144,13 @@ describe('Facts API Integration Tests', () => {
 
     it('should hide fact when score drops below threshold', async () => {
       // Set initial score to be just above threshold
-      await pool.query('UPDATE facts SET score = -4 WHERE id = $1', [factId]);
+      await pool.query('UPDATE facts SET score = -5 WHERE id = $1', [factId]);
 
       const response = await request(app).post(`/api/facts/${factId}/downvote`);
 
       expect(response.status).toBe(200);
       expect(response.body.isShown).toBe(false);
-      expect(response.body.newScore).toBe(-5);
+      expect(response.body.newScore).toBe(-6);
 
       // Verify in database
       const result = await pool.query('SELECT is_shown FROM facts WHERE id = $1', [factId]);

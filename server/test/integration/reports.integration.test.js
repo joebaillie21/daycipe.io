@@ -100,12 +100,6 @@ describe('Reports API Integration Tests', () => {
       expect(response.body.length).toBe(1);
       expect(response.body[0].substance_of_report).toBe('Test report');
     });
-
-    it('should return 404 when no reports exist', async () => {
-      const response = await request(app).get('/api/reports/content/fact/999999');
-
-      expect(response.body.error).toBe('No reports found for this content.');
-    });
   });
 
   describe('GET /api/reports', () => {

@@ -1,9 +1,9 @@
 import request from "supertest";
 import express, {json} from "express";
-import factsRouter from "../routes/factsRoutes.js";
-import { getCurrentFact, getFacts, createFact, upvoteFact, downvoteFact, getAllCategoryFactsForToday } from "../db/queries/facts.js";
+import factsRouter from "../../routes/factsRoutes.js";
+import { getCurrentFact, getFacts, createFact, upvoteFact, downvoteFact, getAllCategoryFactsForToday } from "../../db/queries/facts.js";
 
-jest.mock("../db/queries/facts.js");
+jest.mock("../../db/queries/facts.js");
 
 const app = express();
 app.use(json());

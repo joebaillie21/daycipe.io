@@ -1,9 +1,9 @@
 import request from "supertest";
 import express, {json} from "express";
-import jokesRouter from "../routes/jokesRoutes.js";
-import { getCurrentJokes, getJokes, createJoke, upvoteJoke, downvoteJoke } from "../db/queries/jokes.js";
+import jokesRouter from "../../routes/jokesRoutes.js";
+import { getCurrentJokes, getJokes, createJoke, upvoteJoke, downvoteJoke } from "../../db/queries/jokes.js";
 
-jest.mock("../db/queries/jokes.js");
+jest.mock("../../db/queries/jokes.js");
 
 const app = express();
 app.use(json());
