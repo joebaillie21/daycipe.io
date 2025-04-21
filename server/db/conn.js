@@ -8,7 +8,7 @@ export const pool = new Pool({
   user: "postgres",         // Your PostgreSQL username
   host: "localhost",        // Your PostgreSQL host
   database: "daycipe",      // Your PostgreSQL database
-  password: "postgres",     // Your PostgreSQL password
+  password: "password",     // Your PostgreSQL password
   port: 5432                // Default PostgreSQL port
 });
 
