@@ -6,40 +6,30 @@ import dotenv from 'dotenv';
 dotenv.config();
 const { Pool } = pkg;
 
-// <<<<<<< HEAD
-// // Define database config based on environment
-// const getPoolConfig = () => {
-//     if (process.env.NODE_ENV === 'test') {
-//       return {
-//         user: "postgres",
-//         host: "localhost",
-//         database: "daycipe_test",
-//         password: "postgres",
-//         port: 5432
-//       };
-//     }
-    
-//     // Default to development config
-//     return {
-//       user: process.env.PGUSER || "postgres",
-//       host: process.env.PGHOST || "localhost",
-//       database: process.env.PGDATABASE || "daycipe",
-//       password: process.env.PGPASSWORD || "postgres",
-//       port: parseInt(process.env.PGPORT || "5432")
-//     };
-//   };
-  
-// export const pool = new Pool(getPoolConfig());
-  
-// =======
-const isProduction = process.env.NODE_ENV === 'production';
+// Define database config based on environment
+const getPoolConfig = () => {
+    const isProduction = process.env.NODE_ENV === 'production';
 
-export const pool = new Pool(
-    process.env.DATABASE_URL = {
-          connectionString: process.env.DATABASE_URL,
-          ssl: isProduction ? { rejectUnauthorized: false } : false
-        }
-  );
+    if(isProduction) {
+      return process.env.DATABASE_URL = {
+        connectionString: process.env.DATABASE_URL,
+        ssl: isProduction ? { rejectUnauthorized: false } : false
+      }
+    }
+    
+    if (process.env.NODE_ENV === 'test') {
+      return {
+        connectionString: "postgres://postgres:password@localhost:5432/daycipe"
+      };
+    }
+    
+    // Default to development config
+    return {
+      connectionString: process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/daycipe"
+    };
+  };
+  
+export const pool = new Pool(getPoolConfig());
 
 //Initialize DB schema
 const schemaPath = path.resolve('db/schema.sql');
