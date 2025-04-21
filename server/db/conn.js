@@ -10,8 +10,8 @@ const getPoolConfig = () => {
       return {
         user: "postgres",
         host: "localhost",
-        database: "daycipe",
-        password: "password",
+        database: "daycipe_test",
+        password: "postgres",
         port: 5432
       };
     }
