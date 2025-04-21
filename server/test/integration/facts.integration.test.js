@@ -2,7 +2,8 @@ import request from 'supertest';
 import express from 'express';
 import cors from 'cors';
 import factsRouter from '../../routes/factsRoutes.js';
-import { setupTestDatabase, clearTestData, closeTestDatabase, testPool } from './setup/test-db.js';
+import { setupTestDatabase, clearTestData, closeTestDatabase } from './setup/test-db.js';
+import { pool } from '../../db/conn.js';
 import { testFacts, today } from './fixtures/test-data.js';
 
 const app = express();
@@ -12,12 +13,6 @@ app.use('/api/facts', factsRouter);
 
 describe('Facts API Integration Tests', () => {
   beforeAll(async () => {
-    process.env.PGUSER = process.env.TEST_DB_USER;
-    process.env.PGPASSWORD = process.env.TEST_DB_PASSWORD;
-    process.env.PGHOST = process.env.TEST_DB_HOST;
-    process.env.PGPORT = process.env.TEST_DB_PORT;
-    process.env.PGDATABASE = process.env.TEST_DB_NAME;
-    
     await setupTestDatabase();
   });
 
@@ -32,7 +27,7 @@ describe('Facts API Integration Tests', () => {
   describe('GET /api/facts', () => {
     it('should return all facts', async () => {
       // Insert test data
-      await testPool.query(`
+      await pool.query(`
         INSERT INTO facts (date, content, source, category) 
         VALUES ($1, $2, $3, $4)
       `, [testFacts.math.date, testFacts.math.content, testFacts.math.source, testFacts.math.category]);
@@ -56,7 +51,7 @@ describe('Facts API Integration Tests', () => {
       expect(response.body.factId).toBeDefined();
 
       // Verify the fact was created in the database
-      const result = await testPool.query('SELECT * FROM facts WHERE id = $1', [response.body.factId]);
+      const result = await pool.query('SELECT * FROM facts WHERE id = $1', [response.body.factId]);
       expect(result.rows[0].content).toBe(testFacts.physics.content);
       expect(result.rows[0].source).toBe(testFacts.physics.source);
     });
@@ -77,7 +72,7 @@ describe('Facts API Integration Tests', () => {
   describe('GET /api/facts/today', () => {
     it('should return today\'s fact for a specific category', async () => {
       // Insert test facts
-      await testPool.query(`
+      await pool.query(`
         INSERT INTO facts (date, content, source, category) 
         VALUES ($1, $2, $3, $4)
       `, [testFacts.math.date, testFacts.math.content, testFacts.math.source, testFacts.math.category]);
@@ -92,11 +87,11 @@ describe('Facts API Integration Tests', () => {
     it('should return all category facts when category=all', async () => {
       // Insert facts from multiple categories
       await Promise.all([
-        testPool.query(`
+        pool.query(`
           INSERT INTO facts (date, content, source, category) 
           VALUES ($1, $2, $3, $4)
         `, [testFacts.math.date, testFacts.math.content, testFacts.math.source, testFacts.math.category]),
-        testPool.query(`
+        pool.query(`
           INSERT INTO facts (date, content, source, category) 
           VALUES ($1, $2, $3, $4)
         `, [testFacts.physics.date, testFacts.physics.content, testFacts.physics.source, testFacts.physics.category])
@@ -120,7 +115,7 @@ describe('Facts API Integration Tests', () => {
     let factId;
 
     beforeEach(async () => {
-      const result = await testPool.query(`
+      const result = await pool.query(`
         INSERT INTO facts (date, content, source, category, score) 
         VALUES ($1, $2, $3, $4, 0) RETURNING id
       `, [testFacts.math.date, testFacts.math.content, testFacts.math.source, testFacts.math.category]);
@@ -135,7 +130,7 @@ describe('Facts API Integration Tests', () => {
       expect(response.body.newScore).toBe(1);
 
       // Verify in database
-      const result = await testPool.query('SELECT score FROM facts WHERE id = $1', [factId]);
+      const result = await pool.query('SELECT score FROM facts WHERE id = $1', [factId]);
       expect(result.rows[0].score).toBe(1);
     });
 
@@ -149,7 +144,7 @@ describe('Facts API Integration Tests', () => {
 
     it('should hide fact when score drops below threshold', async () => {
       // Set initial score to be just above threshold
-      await testPool.query('UPDATE facts SET score = -4 WHERE id = $1', [factId]);
+      await pool.query('UPDATE facts SET score = -4 WHERE id = $1', [factId]);
 
       const response = await request(app).post(`/api/facts/${factId}/downvote`);
 
@@ -158,7 +153,7 @@ describe('Facts API Integration Tests', () => {
       expect(response.body.newScore).toBe(-5);
 
       // Verify in database
-      const result = await testPool.query('SELECT is_shown FROM facts WHERE id = $1', [factId]);
+      const result = await pool.query('SELECT is_shown FROM facts WHERE id = $1', [factId]);
       expect(result.rows[0].is_shown).toBe(false);
     });
   });

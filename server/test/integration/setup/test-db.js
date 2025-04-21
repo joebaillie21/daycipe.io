@@ -1,11 +1,6 @@
-import pkg from 'pg';
-import { testConfig } from './test-config.js';
 import fs from 'fs';
 import path from 'path';
-
-const { Pool } = pkg;
-
-export const testPool = new Pool(testConfig.postgres);
+import { pool } from '../../../db/conn.js';
 
 export async function setupTestDatabase() {
   // Execute schema.sql to create tables
@@ -13,7 +8,7 @@ export async function setupTestDatabase() {
   const schemaQuery = fs.readFileSync(schemaPath, 'utf-8');
   
   try {
-    await testPool.query(schemaQuery);
+    await pool.query(schemaQuery);
     console.log('Test database schema initialized');
   } catch (error) {
     console.error('Error initializing test database schema:', error);
@@ -22,7 +17,7 @@ export async function setupTestDatabase() {
 }
 
 export async function clearTestData() {
-  const client = await testPool.connect();
+  const client = await pool.connect();
   try {
     await client.query('BEGIN');
     
@@ -48,5 +43,5 @@ export async function clearTestData() {
 }
 
 export async function closeTestDatabase() {
-  await testPool.end();
+  await pool.end();
 }

@@ -2,7 +2,8 @@ import request from 'supertest';
 import express from 'express';
 import cors from 'cors';
 import reportsRouter from '../../routes/reportsRoutes.js';
-import { setupTestDatabase, clearTestData, closeTestDatabase, testPool } from './setup/test-db.js';
+import { setupTestDatabase, clearTestData, closeTestDatabase } from './setup/test-db.js';
+import { pool } from '../../db/conn.js';
 import { testFacts } from './fixtures/test-data.js';
 
 const app = express();
@@ -12,12 +13,6 @@ app.use('/api/reports', reportsRouter);
 
 describe('Reports API Integration Tests', () => {
   beforeAll(async () => {
-    process.env.PGUSER = process.env.TEST_DB_USER;
-    process.env.PGPASSWORD = process.env.TEST_DB_PASSWORD;
-    process.env.PGHOST = process.env.TEST_DB_HOST;
-    process.env.PGPORT = process.env.TEST_DB_PORT;
-    process.env.PGDATABASE = process.env.TEST_DB_NAME;
-    
     await setupTestDatabase();
   });
 
@@ -34,7 +29,7 @@ describe('Reports API Integration Tests', () => {
 
     beforeEach(async () => {
       // Insert a fact to report
-      const result = await testPool.query(`
+      const result = await pool.query(`
         INSERT INTO facts (date, content, source, category) 
         VALUES ($1, $2, $3, $4) RETURNING id
       `, [testFacts.math.date, testFacts.math.content, testFacts.math.source, testFacts.math.category]);
@@ -56,7 +51,7 @@ describe('Reports API Integration Tests', () => {
       expect(response.body.reportId).toBeDefined();
 
       // Verify in database
-      const result = await testPool.query('SELECT * FROM reports WHERE id = $1', [response.body.reportId]);
+      const result = await pool.query('SELECT * FROM reports WHERE id = $1', [response.body.reportId]);
       expect(result.rows[0].type_of_reported_content).toBe('fact');
       expect(result.rows[0].reported_content_id).toBe(factId);
       expect(result.rows[0].substance_of_report).toBe('This fact is inaccurate');
@@ -84,13 +79,13 @@ describe('Reports API Integration Tests', () => {
 
     beforeEach(async () => {
       // Insert a fact and a report for it
-      const factResult = await testPool.query(`
+      const factResult = await pool.query(`
         INSERT INTO facts (date, content, source, category) 
         VALUES ($1, $2, $3, $4) RETURNING id
       `, [testFacts.math.date, testFacts.math.content, testFacts.math.source, testFacts.math.category]);
       factId = factResult.rows[0].id;
 
-      const reportResult = await testPool.query(`
+      const reportResult = await pool.query(`
         INSERT INTO reports (type_of_reported_content, reported_content_id, substance_of_report)
         VALUES ($1, $2, $3) RETURNING id
       `, ['fact', factId, 'Test report']);
@@ -116,18 +111,18 @@ describe('Reports API Integration Tests', () => {
   describe('GET /api/reports', () => {
     it('should get all reports', async () => {
       // Insert a fact and multiple reports
-      const factResult = await testPool.query(`
+      const factResult = await pool.query(`
         INSERT INTO facts (date, content, source, category) 
         VALUES ($1, $2, $3, $4) RETURNING id
       `, [testFacts.math.date, testFacts.math.content, testFacts.math.source, testFacts.math.category]);
       const factId = factResult.rows[0].id;
 
       await Promise.all([
-        testPool.query(`
+        pool.query(`
           INSERT INTO reports (type_of_reported_content, reported_content_id, substance_of_report)
           VALUES ($1, $2, $3)
         `, ['fact', factId, 'Report 1']),
-        testPool.query(`
+        pool.query(`
           INSERT INTO reports (type_of_reported_content, reported_content_id, substance_of_report)
           VALUES ($1, $2, $3)
         `, ['fact', factId, 'Report 2'])

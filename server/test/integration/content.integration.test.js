@@ -2,7 +2,8 @@ import request from 'supertest';
 import express from 'express';
 import cors from 'cors';
 import contentRouter from '../../routes/contentRoutes.js';
-import { setupTestDatabase, clearTestData, closeTestDatabase, testPool } from './setup/test-db.js';
+import { setupTestDatabase, clearTestData, closeTestDatabase } from './setup/test-db.js';
+import { pool } from '../../db/conn.js';
 import { generateContentInDateRange } from './fixtures/test-data.js';
 
 const app = express();
@@ -12,12 +13,6 @@ app.use('/api/content', contentRouter);
 
 describe('Content Range API Integration Tests', () => {
   beforeAll(async () => {
-    process.env.PGUSER = process.env.TEST_DB_USER;
-    process.env.PGPASSWORD = process.env.TEST_DB_PASSWORD;
-    process.env.PGHOST = process.env.TEST_DB_HOST;
-    process.env.PGPORT = process.env.TEST_DB_PORT;
-    process.env.PGDATABASE = process.env.TEST_DB_NAME;
-    
     await setupTestDatabase();
   });
 
@@ -37,19 +32,19 @@ describe('Content Range API Integration Tests', () => {
       // Insert test data
       await Promise.all([
         ...content.facts.map(fact => 
-          testPool.query(`
+          pool.query(`
             INSERT INTO facts (date, content, source, category, is_shown) 
             VALUES ($1, $2, $3, $4, true)
           `, [fact.date, fact.content, fact.source, fact.category])
         ),
         ...content.jokes.map(joke => 
-          testPool.query(`
+          pool.query(`
             INSERT INTO jokes (date, content, is_shown) 
             VALUES ($1, $2, true)
           `, [joke.date, joke.content])
         ),
         ...content.recipes.map(recipe => 
-          testPool.query(`
+          pool.query(`
             INSERT INTO recipes (date, content, category, is_shown) 
             VALUES ($1, $2, $3, true)
           `, [recipe.date, recipe.content, recipe.category])
@@ -74,19 +69,19 @@ describe('Content Range API Integration Tests', () => {
       // Insert test data
       await Promise.all([
         ...content.facts.map(fact => 
-          testPool.query(`
+          pool.query(`
             INSERT INTO facts (date, content, source, category, is_shown) 
             VALUES ($1, $2, $3, $4, true)
           `, [fact.date, fact.content, fact.source, fact.category])
         ),
         ...content.jokes.map(joke => 
-          testPool.query(`
+          pool.query(`
             INSERT INTO jokes (date, content, is_shown) 
             VALUES ($1, $2, true)
           `, [joke.date, joke.content])
         ),
         ...content.recipes.map(recipe => 
-          testPool.query(`
+          pool.query(`
             INSERT INTO recipes (date, content, category, is_shown) 
             VALUES ($1, $2, $3, true)
           `, [recipe.date, recipe.content, recipe.category])
@@ -105,12 +100,12 @@ describe('Content Range API Integration Tests', () => {
       const testDate = '2024-01-01';
       
       // Insert visible and hidden facts
-      await testPool.query(`
+      await pool.query(`
         INSERT INTO facts (date, content, source, category, is_shown) 
         VALUES ($1, $2, $3, $4, true)
       `, [testDate, 'Visible fact', 'Source', 'math']);
       
-      await testPool.query(`
+      await pool.query(`
         INSERT INTO facts (date, content, source, category, is_shown, score) 
         VALUES ($1, $2, $3, $4, false, -10)
       `, [testDate, 'Hidden fact', 'Source', 'math']);

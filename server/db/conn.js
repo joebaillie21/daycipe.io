@@ -4,14 +4,30 @@ import path from 'path';
 import fs from 'fs';
 const { Pool } = pkg;
 
-export const pool = new Pool({
-  user: "postgres",         // Your PostgreSQL username
-  host: "localhost",        // Your PostgreSQL host
-  database: "daycipe",      // Your PostgreSQL database
-  password: "postgres",     // Your PostgreSQL password
-  port: 5432                // Default PostgreSQL port
-});
-
+// Define database config based on environment
+const getPoolConfig = () => {
+    if (process.env.NODE_ENV === 'test') {
+      return {
+        user: "postgres",
+        host: "localhost",
+        database: "daycipe",
+        password: "password",
+        port: 5432
+      };
+    }
+    
+    // Default to development config
+    return {
+      user: process.env.PGUSER || "postgres",
+      host: process.env.PGHOST || "localhost",
+      database: process.env.PGDATABASE || "daycipe",
+      password: process.env.PGPASSWORD || "postgres",
+      port: parseInt(process.env.PGPORT || "5432")
+    };
+  };
+  
+export const pool = new Pool(getPoolConfig());
+  
 //Initialize DB schema
 const schemaPath = path.resolve('db/schema.sql');
 const schemaQuery = fs.readFileSync(schemaPath, 'utf-8');

@@ -1,8 +1,11 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load test environment variables if they exist
-dotenv.config({ path: path.resolve('.env.test') });
+// Load test environment variables
+dotenv.config({ path: path.resolve(process.cwd(), '.env.test') });
+
+// Ensure NODE_ENV is set to test
+process.env.NODE_ENV = 'test';
 
 // Global setup
 beforeAll(() => {
