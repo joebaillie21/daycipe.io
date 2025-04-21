@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { createFact, getCurrentFact, getFacts, upvoteFact, downvoteFact, getCurrentFactByCategory, VALID_FACT_CATEGORIES } from "../db/queries/facts.js";
+import { createFact, getCurrentFact, getFacts, upvoteFact, downvoteFact, getAllCategoryFactsForToday } from "../db/queries/facts.js";
   
 // Get all facts
 router.get("/", async (req, res) => {
@@ -13,18 +13,33 @@ try {
 }
 });
 
-// Get the current date's fact
+// Get the current date's fact - with optional category parameter
 router.get("/today", async (req, res) => {
     try {
-        const clubs = await getCurrentFact();
-        if(!clubs) {
+        // Check if a category parameter is provided
+        const { category } = req.query;
+        
+        // If category=all is specified, return one fact per category
+        if (category === 'all') {
+            const facts = await getAllCategoryFactsForToday();
+            if (facts.length === 0) {
+                res.status(404).json({error: "No facts of the day found."});
+                return;
+            }
+            res.json(facts);
+            return;
+        }
+        
+        // For backward compatibility or specific category
+        const fact = await getCurrentFact(category || null);
+        if (!fact) {
             res.status(404).json({error: "No fact of the day found."});
             return;
         }
 
-        res.json(clubs);
+        res.json(fact);
     } catch (error) {
-        res.status(500).json({ error: "Failed to get facts" });
+        res.status(500).json({ error: `Failed to get facts: ${error.message}` });
     }
 });
 

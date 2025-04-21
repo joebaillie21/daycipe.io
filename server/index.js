@@ -16,12 +16,14 @@ import factsRoutes from "./routes/factsRoutes.js";
 import jokesRoutes from "./routes/jokesRoutes.js";
 import recipesRoutes from "./routes/recipesRoutes.js";
 import reportsRoutes from "./routes/reportsRoutes.js";
+import contentRoutes from "./routes/contentRoutes.js";
 
 // Use routes
 app.use("/api/facts", factsRoutes);
 app.use("/api/jokes", jokesRoutes);
 app.use("/api/recipes", recipesRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/content", contentRoutes);
 
 // Start server
 app.listen(PORT, () => {
