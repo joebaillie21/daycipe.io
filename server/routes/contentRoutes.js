@@ -48,7 +48,6 @@ router.get("/range", async (req, res) => {
         
         res.json(response);
     } catch (error) {
-        console.error("Error fetching content by date range:", error);
         res.status(500).json({ error: `Failed to get content: ${error.message}` });
     }
 });

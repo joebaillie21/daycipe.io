@@ -57,7 +57,7 @@ describe("GET Endpoints", () => {
     const response = await request(app).get("/facts");
 
     expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: "Failed to get facts: Database error" });
+    expect(response.body).toEqual({ error: "Failed to get facts" });
   });
 
   test("GET /facts/today should handle errors gracefully", async () => {
@@ -66,7 +66,7 @@ describe("GET Endpoints", () => {
     const response = await request(app).get("/facts/today");
 
     expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: "Failed to get facts" });
+    expect(response.body).toEqual({ error: "Failed to get facts: Database error" });
   });
 
 });
