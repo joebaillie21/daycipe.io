@@ -1,7 +1,7 @@
 export default {
     testEnvironment: 'node',
-    testMatch: ['**/tests/integration/**/*.test.js'],
-    setupFilesAfterEnv: ['./tests/integration/setup/jest.setup.js'],
+    testMatch: ['**/test/integration/**/*.test.js'],
+    setupFilesAfterEnv: ['./test/integration/setup/jest.setup.js'],
     verbose: true,
     forceExit: true,
     clearMocks: true,
