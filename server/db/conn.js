@@ -2,32 +2,45 @@
 import pkg from 'pg';
 import path from 'path';
 import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config();
 const { Pool } = pkg;
 
-// Define database config based on environment
-const getPoolConfig = () => {
-    if (process.env.NODE_ENV === 'test') {
-      return {
-        user: "postgres",
-        host: "localhost",
-        database: "daycipe_test",
-        password: "postgres",
-        port: 5432
-      };
-    }
+// <<<<<<< HEAD
+// // Define database config based on environment
+// const getPoolConfig = () => {
+//     if (process.env.NODE_ENV === 'test') {
+//       return {
+//         user: "postgres",
+//         host: "localhost",
+//         database: "daycipe_test",
+//         password: "postgres",
+//         port: 5432
+//       };
+//     }
     
-    // Default to development config
-    return {
-      user: process.env.PGUSER || "postgres",
-      host: process.env.PGHOST || "localhost",
-      database: process.env.PGDATABASE || "daycipe",
-      password: process.env.PGPASSWORD || "postgres",
-      port: parseInt(process.env.PGPORT || "5432")
-    };
-  };
+//     // Default to development config
+//     return {
+//       user: process.env.PGUSER || "postgres",
+//       host: process.env.PGHOST || "localhost",
+//       database: process.env.PGDATABASE || "daycipe",
+//       password: process.env.PGPASSWORD || "postgres",
+//       port: parseInt(process.env.PGPORT || "5432")
+//     };
+//   };
   
-export const pool = new Pool(getPoolConfig());
+// export const pool = new Pool(getPoolConfig());
   
+// =======
+const isProduction = process.env.NODE_ENV === 'production';
+
+export const pool = new Pool(
+    process.env.DATABASE_URL = {
+          connectionString: process.env.DATABASE_URL,
+          ssl: isProduction ? { rejectUnauthorized: false } : false
+        }
+  );
+
 //Initialize DB schema
 const schemaPath = path.resolve('db/schema.sql');
 const schemaQuery = fs.readFileSync(schemaPath, 'utf-8');
