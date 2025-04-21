@@ -2,15 +2,18 @@
 import pkg from 'pg';
 import path from 'path';
 import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config();
 const { Pool } = pkg;
 
-export const pool = new Pool({
-  user: "postgres",         // Your PostgreSQL username
-  host: "localhost",        // Your PostgreSQL host
-  database: "daycipe",      // Your PostgreSQL database
-  password: "postgres",     // Your PostgreSQL password
-  port: 5432                // Default PostgreSQL port
-});
+const isProduction = process.env.NODE_ENV === 'production';
+
+export const pool = new Pool(
+    process.env.DATABASE_URL = {
+          connectionString: process.env.DATABASE_URL,
+          ssl: isProduction ? { rejectUnauthorized: false } : false
+        }
+  );
 
 //Initialize DB schema
 const schemaPath = path.resolve('db/schema.sql');
