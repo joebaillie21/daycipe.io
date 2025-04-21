@@ -124,3 +124,11 @@ def post_content(date_range, verbose=False):
         post_jokes(date, verbose)
         post_facts(date, verbose)
         post_recipes(date, verbose)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Post jokes, facts, and recipes to the PostgreSQL database via REST API.")
+    parser.add_argument("--days", type=int, default=1, help="Number of days to post content for (default: 1)")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    args = parser.parse_args()
+
+    post_content(args.days, args.verbose)

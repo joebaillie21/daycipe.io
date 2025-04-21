@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { createFact, getCurrentFact, getFacts, upvoteFact, downvoteFact, getAllCategoryFactsForToday } from "../db/queries/facts.js";
+import { createFact, getCurrentFact, getFacts, upvoteFact, downvoteFact, getAllCategoryFactsForToday, getCurrentFactByCategory, VALID_FACT_CATEGORIES } from "../db/queries/facts.js";
   
 // Get all facts
 router.get("/", async (req, res) => {
