@@ -23,7 +23,7 @@ export const getCurrentRecipe = async (category = null) => {
     return result.rows[0] || null;
 };
 
-// new function to get all recipes for today (one per category)
+// get all recipes for today (one per category)
 export const getAllCategoryRecipesForToday = async () => {
     const query = `
         SELECT DISTINCT ON (category) *
@@ -32,6 +32,19 @@ export const getAllCategoryRecipesForToday = async () => {
         ORDER BY category, score DESC
     `;
     const result = await pool.query(query);
+    return result.rows;
+};
+
+export const getRecipesByDateRange = async (startDate, endDate = null) => {
+    // If no end date provided, search only for the start date
+    const actualEndDate = endDate || startDate;
+    
+    const query = `
+        SELECT * FROM recipes 
+        WHERE date >= $1 AND date <= $2 AND is_shown = TRUE
+        ORDER BY date DESC, category, score DESC
+    `;
+    const result = await pool.query(query, [startDate, actualEndDate]);
     return result.rows;
 };
 
