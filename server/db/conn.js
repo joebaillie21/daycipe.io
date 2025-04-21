@@ -19,7 +19,7 @@ const getPoolConfig = () => {
     
     if (process.env.NODE_ENV === 'test') {
       return {
-        connectionString: "postgres://postgres:password@localhost:5432/daycipe"
+        connectionString: "postgres://postgres:postgres@localhost:5432/daycipe_test"
       };
     }
     
