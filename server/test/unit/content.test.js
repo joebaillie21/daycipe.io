@@ -1,13 +1,13 @@
 import request from "supertest";
 import express, { json } from "express";
-import contentRouter from "../routes/contentRoutes.js";
-import { getFactsByDateRange } from "../db/queries/facts.js";
-import { getJokesByDateRange } from "../db/queries/jokes.js";
-import { getRecipesByDateRange } from "../db/queries/recipes.js";
+import contentRouter from "../../routes/contentRoutes.js";
+import { getFactsByDateRange } from "../../db/queries/facts.js";
+import { getJokesByDateRange } from "../../db/queries/jokes.js";
+import { getRecipesByDateRange } from "../../db/queries/recipes.js";
 
-jest.mock("../db/queries/facts.js");
-jest.mock("../db/queries/jokes.js");
-jest.mock("../db/queries/recipes.js");
+jest.mock("../../db/queries/facts.js");
+jest.mock("../../db/queries/jokes.js");
+jest.mock("../../db/queries/recipes.js");
 
 const app = express();
 app.use(json());
