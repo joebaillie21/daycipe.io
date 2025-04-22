@@ -1,17 +1,17 @@
-// TitleArea.js
 import React from 'react';
+import { format } from 'date-fns';
 
-const TitleArea = () => {
+const TitleArea = ({ currentDate, onPrevDay, onNextDay }) => {
   return (
     <div className="title-area">
-      <button className="chevron-left">{'<'}</button>
+      <button className="chevron-left" onClick={onPrevDay}>{'<'}</button>
       <div className="date">
-        <span>Jan </span>
-        <span>15</span>
+        <span>{format(currentDate, 'MMM ')}</span>
+        <span>{format(currentDate, 'd')}</span>
       </div>
-      <button className="chevron-right">{'>'}</button>
+      <button className="chevron-right" onClick={onNextDay}>{'>'}</button>
     </div>
   );
-}
+};
 
 export default TitleArea;

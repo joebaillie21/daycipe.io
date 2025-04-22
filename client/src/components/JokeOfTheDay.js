@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const JokeOfTheDay = () => {
+const JokeOfTheDay = ({ date }) => {
   const [jokes, setJokes] = useState([]);
   const [jokePage, setJokePage] = useState(0);
   const [baseScores, setBaseScores] = useState({});
@@ -8,80 +8,88 @@ const JokeOfTheDay = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // === Fetch jokes on mount ===
   useEffect(() => {
     const fetchJokes = async () => {
+      setLoading(true);
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/jokes/today`);
-        if (!response.ok) throw new Error("Failed to fetch jokes");
-        const data = await response.json();
-        const jokesArray = Array.isArray(data) ? data : [data];
-        console.log(jokesArray)
+        const formatted = date.toLocaleDateString('en-CA');
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/content/range?startDate=${formatted}&endDate=${formatted}`);
+        if (!response.ok) throw new Error("Failed to fetch content");
 
-        // Initialize scores and votes
+        const data = await response.json();
+        const jokesArray = Array.isArray(data.content.jokes) ? data.content.jokes : [data.content.jokes];
+
+        const visibleJokes = jokesArray.filter(joke => joke.is_shown);
+
         const scores = {};
         const votes = {};
-        for (const joke of jokesArray) {
+        for (const joke of visibleJokes) {
           scores[joke.id] = joke.score ?? 0;
           votes[joke.id] = localStorage.getItem(`vote-joke-${joke.id}`) || null;
         }
 
-        setJokes(jokesArray);
+        setJokes(visibleJokes);
         setBaseScores(scores);
         setUserVotes(votes);
+        setJokePage(0);
       } catch (err) {
         setError(err.message);
+        setJokes([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchJokes();
-  }, []);
+  }, [date]);
 
   const currentJoke = jokes[jokePage];
   const currentId = currentJoke?.id;
   const baseScore = baseScores[currentId] ?? 0;
   const userVote = userVotes[currentId] ?? null;
 
-  const displayScore = () => {
-    if (userVote === 'upvote') return baseScore + 1;
-    if (userVote === 'downvote') return baseScore - 1;
-    return baseScore;
-  };
-
-  const updateVoteOnServer = async (type) => {
-    try {
-      await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/jokes/${currentId}/${type}`, {
-        method: 'POST'
-      });
-    } catch (err) {
-      console.error(`Failed to ${type} joke:`, err.message);
-    }
-  };
+  const displayScore = () => baseScore;
 
   const handleVote = async (type) => {
     if (!currentId) return;
-
+  
     const previousVote = userVotes[currentId];
-    let newVote = null;
-
-    if (previousVote === type) {
-      newVote = null;
-    } else {
-      newVote = type;
+    const oppositeType = type === "upvote" ? "downvote" : "upvote";
+  
+    try {
+      if (previousVote === type) {
+        // User clicked the same vote → undo it
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/jokes/${currentId}/${oppositeType}`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        setUserVotes(prev => ({ ...prev, [currentId]: null }));
+        setBaseScores(prev => ({ ...prev, [currentId]: data.newScore }));
+        localStorage.removeItem(`vote-joke-${currentId}`);
+      } else {
+        // Undo previous vote if there was one
+        if (previousVote) {
+          const undoRes = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/jokes/${currentId}/${previousVote === "upvote" ? "downvote" : "upvote"}`, {
+            method: 'POST'
+          });
+          const undoData = await undoRes.json();
+          setBaseScores(prev => ({ ...prev, [currentId]: undoData.newScore }));
+        }
+  
+        // Apply the new vote
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/jokes/${currentId}/${type}`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+  
+        setUserVotes(prev => ({ ...prev, [currentId]: type }));
+        setBaseScores(prev => ({ ...prev, [currentId]: data.newScore }));
+        localStorage.setItem(`vote-joke-${currentId}`, type);
+      }
+    } catch (err) {
+      console.error("Vote handling failed:", err.message);
     }
-
-    setUserVotes(prev => ({ ...prev, [currentId]: newVote }));
-
-    if (newVote) {
-      localStorage.setItem(`vote-joke-${currentId}`, newVote);
-      await updateVoteOnServer(newVote);
-    } else {
-      localStorage.removeItem(`vote-joke-${currentId}`);
-      // Optional: call undo endpoint if added
-    }
-  };
+  };  
 
   const nextJoke = () => {
     setJokePage((prev) => (prev + 1) % jokes.length);
@@ -94,7 +102,6 @@ const JokeOfTheDay = () => {
   const reportContent = async (type, id) => {
     const reason = prompt("Why are you reporting this?");
     if (!reason) return;
-  
     try {
       await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/reports/create`, {
         method: "POST",
@@ -111,7 +118,6 @@ const JokeOfTheDay = () => {
       alert("Failed to submit report.");
     }
   };
-  
 
   return (
     <div className="joke-of-the-day">
@@ -122,16 +128,16 @@ const JokeOfTheDay = () => {
         <h3>Joke of the Day</h3>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}
-        {!loading && !error && currentJoke && (
+        {!loading && !error && currentJoke ? (
           <>
-            <p>{currentJoke.content}</p>
+            <p className='jokeContent'>{currentJoke.content}</p>
             <div className="joke-actions">
-              <button
-                onClick={() => handleVote("upvote")}
-                className={`vote-btn upvote ${userVote === "upvote" ? "selected" : ""}`}
-              >
-                ↑
-              </button>
+            <button
+              onClick={() => handleVote("upvote")}
+              className={`vote-btn upvote ${userVote === "upvote" ? "selected" : ""}`}
+            >
+              ↑
+            </button>
               <span>{displayScore()}</span>
               <button
                 onClick={() => handleVote("downvote")}
@@ -142,6 +148,8 @@ const JokeOfTheDay = () => {
               <button onClick={() => reportContent("joke", currentJoke.id)}>Report</button>
             </div>
           </>
+        ) : (
+          <p>This joke was removed.</p>
         )}
       </div>
       <button className="joke-chevron" onClick={nextJoke} disabled={jokes.length <= 1}>

@@ -9,7 +9,7 @@ const CATEGORIES = [
   'kosher'
 ];
 
-const RecipeOfTheDay = () => {
+const RecipeOfTheDay = ({ date }) => {
   const [selectedCategory, setSelectedCategory] = useState('default');
   const [recipe, setRecipe] = useState(null);
   const [baseScore, setBaseScore] = useState(0);
@@ -19,19 +19,31 @@ const RecipeOfTheDay = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchRecipe = async (category) => {
+  const fetchRecipe = async (category, date) => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/today?category=${category}`);
-      if (!response.ok) throw new Error("Failed to fetch recipe");
+      const formatted = date.toLocaleDateString('en-CA');
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/content/range?startDate=${formatted}&endDate=${formatted}`);
+      if (!response.ok) throw new Error("Failed to fetch content");
+
       const data = await response.json();
-  
-      data.content = JSON.parse(data.content); // ✅ fix here
-  
-      setRecipe(data);
-      setBaseScore(data.score ?? 0);
-      setUserVote(localStorage.getItem(`vote-recipe-${data.id}`) || null);
-      const servings = data.content?.serving_size ?? 1;
+      const match = data.content.recipes.find(r => r.category === category);
+
+      if (!match) {
+        throw new Error("No recipe found for this category and date.");
+      }
+
+      if (!match.is_shown) {
+        setError("This recipe was removed.");
+        setRecipe(null);
+        return;
+      }
+
+      match.content = JSON.parse(match.content);
+      setRecipe(match);
+      setBaseScore(match.score ?? 0);
+      setUserVote(localStorage.getItem(`vote-recipe-${match.id}`) || null);
+      const servings = match.content?.serving_size ?? 1;
       setServingSize(servings);
       setDefaultServing(servings);
     } catch (err) {
@@ -43,8 +55,8 @@ const RecipeOfTheDay = () => {
   };
 
   useEffect(() => {
-    fetchRecipe(selectedCategory);
-  }, [selectedCategory]);
+    fetchRecipe(selectedCategory, date);
+  }, [selectedCategory, date]);
 
   const displayScore = () => {
     if (userVote === 'upvote') return baseScore + 1;
@@ -52,30 +64,53 @@ const RecipeOfTheDay = () => {
     return baseScore;
   };
 
-  const updateVoteOnServer = async (type) => {
-    try {
-      await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${type}`, {
-        method: 'POST'
-      });
-    } catch (err) {
-      console.error(`Failed to ${type} recipe:`, err.message);
-    }
-  };
-
   const handleVote = async (type) => {
     if (!recipe?.id) return;
-
+  
     const previousVote = userVote;
-    const newVote = previousVote === type ? null : type;
-
-    setUserVote(newVote);
-    if (newVote) {
-      localStorage.setItem(`vote-recipe-${recipe.id}`, newVote);
-      await updateVoteOnServer(newVote);
-    } else {
-      localStorage.removeItem(`vote-recipe-${recipe.id}`);
+    const oppositeType = type === "upvote" ? "downvote" : "upvote";
+  
+    try {
+      if (previousVote === type) {
+        // Undo current vote
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${oppositeType}`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        if (typeof data.newScore === "number") {
+          setBaseScore(data.newScore);
+        }
+        localStorage.removeItem(`vote-recipe-${recipe.id}`);
+        setUserVote(null);
+      } else {
+        // Undo previous vote first (if needed)
+        if (previousVote) {
+          const undoRes = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${previousVote === "upvote" ? "downvote" : "upvote"}`, {
+            method: 'POST'
+          });
+          const undoData = await undoRes.json();
+          if (typeof undoData.newScore === "number") {
+            setBaseScore(undoData.newScore);
+          }
+        }
+  
+        // Apply new vote
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${type}`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        if (typeof data.newScore === "number") {
+          setBaseScore(data.newScore);
+        }
+  
+        localStorage.setItem(`vote-recipe-${recipe.id}`, type);
+        setUserVote(type);
+      }
+    } catch (err) {
+      console.error("Vote handling failed:", err.message);
     }
-  };
+  };  
+  
 
   const handleServingChange = (e) => {
     setServingSize(Number(e.target.value));
@@ -88,7 +123,6 @@ const RecipeOfTheDay = () => {
   const reportContent = async (type, id) => {
     const reason = prompt("Why are you reporting this?");
     if (!reason) return;
-  
     try {
       await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/reports/create`, {
         method: "POST",
@@ -105,7 +139,6 @@ const RecipeOfTheDay = () => {
       alert("Failed to submit report.");
     }
   };
-  
 
   return (
     <div className="recipe-of-the-day">

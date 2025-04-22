@@ -31,6 +31,10 @@
   height: 80vh;
 }
 
+.jokeContent {
+  margin: 10px;
+}
+
 .left-column {
   display: flex;
   flex-direction: column;
