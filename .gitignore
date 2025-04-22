@@ -1,3 +1,5 @@
 node_modules
 server/db/daily_outputs
 **/__pycache__
+client/node_modules
+client/build
