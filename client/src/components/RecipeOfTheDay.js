@@ -22,7 +22,7 @@ const RecipeOfTheDay = () => {
   const fetchRecipe = async (category) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/recipes/today?category=${category}`);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/today?category=${category}`);
       if (!response.ok) throw new Error("Failed to fetch recipe");
       const data = await response.json();
   
@@ -54,7 +54,7 @@ const RecipeOfTheDay = () => {
 
   const updateVoteOnServer = async (type) => {
     try {
-      await fetch(`http://localhost:3001/api/recipes/${recipe.id}/${type}`, {
+      await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${type}`, {
         method: 'POST'
       });
     } catch (err) {
@@ -90,7 +90,7 @@ const RecipeOfTheDay = () => {
     if (!reason) return;
   
     try {
-      await fetch("http://localhost:3001/api/reports/create", {
+      await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/reports/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

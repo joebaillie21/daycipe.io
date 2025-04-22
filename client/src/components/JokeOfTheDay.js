@@ -12,7 +12,7 @@ const JokeOfTheDay = () => {
   useEffect(() => {
     const fetchJokes = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/jokes/today");
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/jokes/today`);
         if (!response.ok) throw new Error("Failed to fetch jokes");
         const data = await response.json();
         const jokesArray = Array.isArray(data) ? data : [data];
@@ -52,7 +52,7 @@ const JokeOfTheDay = () => {
 
   const updateVoteOnServer = async (type) => {
     try {
-      await fetch(`http://localhost:3001/api/jokes/${currentId}/${type}`, {
+      await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/jokes/${currentId}/${type}`, {
         method: 'POST'
       });
     } catch (err) {
@@ -96,7 +96,7 @@ const JokeOfTheDay = () => {
     if (!reason) return;
   
     try {
-      await fetch("http://localhost:3001/api/reports/create", {
+      await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/reports/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

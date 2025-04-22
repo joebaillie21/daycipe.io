@@ -14,7 +14,7 @@ const FactOfTheDay = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:3001/api/facts/today/${category}`);
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/facts/today/${category}`);
       if (!response.ok) throw new Error("Failed to fetch fact");
       const data = await response.json();
       setFact(data);
@@ -42,7 +42,7 @@ const FactOfTheDay = () => {
 
   const updateVoteOnServer = async (type) => {
     if (!fact?.id) return;
-    const endpoint = `http://localhost:3001/api/facts/${fact.id}/${type}`;
+    const endpoint = `${process.env.REACT_APP_BACKEND_API_URL}/api/facts/${fact.id}/${type}`;
     try {
       await fetch(endpoint, { method: 'POST' });
     } catch (err) {
@@ -78,7 +78,7 @@ const FactOfTheDay = () => {
     if (!reason) return;
   
     try {
-      await fetch("http://localhost:3001/api/reports/create", {
+      await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/reports/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

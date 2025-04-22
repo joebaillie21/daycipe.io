@@ -14,9 +14,14 @@ import datetime
 import argparse
 
 # URLs
-JOKE_URL = "http://localhost:3001/api/jokes/create"
-FACT_URL = "http://localhost:3001/api/facts/create"
-RECIPE_URL = "http://localhost:3001/api/recipes/create"
+LOCAL_BACKEND_API = "http://localhost:3001"
+PRODUCTION_BACKEND_API = "https://daycipe-io-server.onrender.com"
+
+
+
+JOKE_URL = f"{PRODUCTION_BACKEND_API}/api/jokes/create"
+FACT_URL = f"{PRODUCTION_BACKEND_API}/api/facts/create"
+RECIPE_URL = f"{PRODUCTION_BACKEND_API}/api/recipes/create"
 
 content_directory = "daily_outputs"
 
