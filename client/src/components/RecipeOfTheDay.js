@@ -21,6 +21,7 @@ const RecipeOfTheDay = ({ date }) => {
 
   const fetchRecipe = async (category, date) => {
     setLoading(true);
+    setError(null);
     try {
       const formatted = date.toLocaleDateString('en-CA');
       const response = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/content/range?startDate=${formatted}&endDate=${formatted}`);
@@ -58,22 +59,17 @@ const RecipeOfTheDay = ({ date }) => {
     fetchRecipe(selectedCategory, date);
   }, [selectedCategory, date]);
 
-  const displayScore = () => {
-    if (userVote === 'upvote') return baseScore + 1;
-    if (userVote === 'downvote') return baseScore - 1;
-    return baseScore;
-  };
+  const displayScore = () => baseScore;
 
   const handleVote = async (type) => {
     if (!recipe?.id) return;
   
     const previousVote = userVote;
-    const oppositeType = type === "upvote" ? "downvote" : "upvote";
   
     try {
       if (previousVote === type) {
         // Undo current vote
-        const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${oppositeType}`, {
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${type === "upvote" ? "downvote" : "upvote"}`, {
           method: 'POST'
         });
         const data = await res.json();
@@ -83,9 +79,9 @@ const RecipeOfTheDay = ({ date }) => {
         localStorage.removeItem(`vote-recipe-${recipe.id}`);
         setUserVote(null);
       } else {
-        // Undo previous vote first (if needed)
+        // Undo previous vote (if needed)
         if (previousVote) {
-          const undoRes = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${previousVote === "upvote" ? "downvote" : "upvote"}`, {
+          const undoRes = await fetch(`${process.env.REACT_APP_BACKEND_API_URL}/api/recipes/${recipe.id}/${previousVote}`, {
             method: 'POST'
           });
           const undoData = await undoRes.json();

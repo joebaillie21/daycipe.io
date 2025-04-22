@@ -128,28 +128,33 @@ const JokeOfTheDay = ({ date }) => {
         <h3>Joke of the Day</h3>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}
-        {!loading && !error && currentJoke ? (
+        {!loading && (
           <>
-            <p className='jokeContent'>{currentJoke.content}</p>
-            <div className="joke-actions">
-            <button
-              onClick={() => handleVote("upvote")}
-              className={`vote-btn upvote ${userVote === "upvote" ? "selected" : ""}`}
-            >
-              ↑
-            </button>
-              <span>{displayScore()}</span>
-              <button
-                onClick={() => handleVote("downvote")}
-                className={`vote-btn downvote ${userVote === "downvote" ? "selected" : ""}`}
-              >
-                ↓
-              </button>
-              <button onClick={() => reportContent("joke", currentJoke.id)}>Report</button>
-            </div>
+            {error && <p className="error">{error}</p>}
+            {!error && currentJoke ? (
+              <>
+                <p>{currentJoke.content}</p>
+                <div className="joke-actions">
+                  <button
+                    onClick={() => handleVote("upvote")}
+                    className={`vote-btn upvote ${userVote === "upvote" ? "selected" : ""}`}
+                  >
+                    ↑
+                  </button>
+                  <span>{displayScore()}</span>
+                  <button
+                    onClick={() => handleVote("downvote")}
+                    className={`vote-btn downvote ${userVote === "downvote" ? "selected" : ""}`}
+                  >
+                    ↓
+                  </button>
+                  <button onClick={() => reportContent("joke", currentId)}>Report</button>
+                </div>
+              </>
+            ) : !error && (
+              <p>No joke found for this date.</p>
+            )}
           </>
-        ) : (
-          <p>This joke was removed.</p>
         )}
       </div>
       <button className="joke-chevron" onClick={nextJoke} disabled={jokes.length <= 1}>
