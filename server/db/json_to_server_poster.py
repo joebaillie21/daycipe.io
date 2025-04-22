@@ -7,26 +7,15 @@ To view the outputs for recipes and facts, take a look at the example_daily_outp
 
 # NOTE: For now, the date that gets printed is just the today's date, not the date of the content.
 '''
-
 import json
 import requests
 import datetime
 import argparse
 
-# URLs
-LOCAL_BACKEND_API = "http://localhost:3001"
-PRODUCTION_BACKEND_API = "https://daycipe-io-server.onrender.com"
-
-
-
-JOKE_URL = f"{PRODUCTION_BACKEND_API}/api/jokes/create"
-FACT_URL = f"{PRODUCTION_BACKEND_API}/api/facts/create"
-RECIPE_URL = f"{PRODUCTION_BACKEND_API}/api/recipes/create"
-
 content_directory = "daily_outputs"
 
 # === POST JOKES ===
-def post_jokes(date, verbose=False):
+def post_jokes(date, verbose=False, JOKE_URL=None):
     date_str = date.strftime("%B %d")  # Format: Month Day (e.g., "December 16")
     try:
         filepath = content_directory + "/jokes_" + date_str + ".json"
@@ -49,7 +38,7 @@ def post_jokes(date, verbose=False):
         print(f"⚠️ Error posting jokes: {e}")
 
 # === POST FACTS ===
-def post_facts(date, verbose=False):
+def post_facts(date, verbose=False, FACT_URL=None):
     date_str = date.strftime("%B %d")  # Format: Month Day (e.g., "December 16")
     try:
         filepath = content_directory + "/facts_" + date_str + ".json"
@@ -88,7 +77,7 @@ def post_facts(date, verbose=False):
         print(f"⚠️ Error posting facts: {e}")
 
 # === POST RECIPES ===
-def post_recipes(date, verbose=False):
+def post_recipes(date, verbose=False, RECIPE_URL=None):
     date_str = date.strftime("%B %d")  # Format: Month Day (e.g., "December 16")
     try:
         filepath = content_directory + "/recipes_" + date_str + ".json"
@@ -114,9 +103,21 @@ def post_recipes(date, verbose=False):
         print(f"⚠️ Error posting recipes: {e}")
 
 
-def post_content(date_range, verbose=False):
+def post_content(date_range, verbose=False, isDeployment=False):
     if verbose:
         print(f"Verbose mode is on. Generating content for {date_range} days.")
+
+    # URLs
+    if isDeployment:
+        print("Posting content to production deployment API.")
+        API = "https://daycipe-io-server.onrender.com"
+    else:
+        print("Posting content to local development API.")
+        API = "http://localhost:3001"
+
+    JOKE_URL = f"{API}/api/jokes/create"
+    FACT_URL = f"{API}/api/facts/create"
+    RECIPE_URL = f"{API}/api/recipes/create"
 
     # Get today's date for the recipe and fact generation
     today = datetime.date.today()
@@ -126,13 +127,14 @@ def post_content(date_range, verbose=False):
         date = today - datetime.timedelta(days=i)
         date_str = date.strftime("%B %d")
         print("Posting content for date:", date_str)
-        post_jokes(date, verbose)
-        post_facts(date, verbose)
-        post_recipes(date, verbose)
+        post_jokes(date, verbose, JOKE_URL)
+        post_facts(date, verbose, FACT_URL)
+        post_recipes(date, verbose, RECIPE_URL)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Post jokes, facts, and recipes to the PostgreSQL database via REST API.")
     parser.add_argument("--days", type=int, default=1, help="Number of days to post content for (default: 1)")
+    parser.add_argument("--production", action="store_true", help="Use the production deployment API")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
 

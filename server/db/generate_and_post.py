@@ -8,6 +8,7 @@ if __name__ == "__main__":
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Generate and post daily content.")
     parser.add_argument("--d", type=int, help="Range of days to generate content for (default: 1)")
+    parser.add_argument("--production", action="store_true", help="Use the production deployment API")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
 
@@ -17,4 +18,9 @@ if __name__ == "__main__":
     generate_and_save_content(date_range, args.verbose)
 
     # Post content to server
-    post_content(date_range, args.verbose)
+    isDeployment = args.production
+    if isDeployment:
+        print("Posting content to production deployment API.")
+    else:
+        print("Posting content to local development API.")
+    post_content(date_range, args.verbose, isDeployment)
