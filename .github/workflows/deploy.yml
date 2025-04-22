@@ -1,0 +1,18 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches:
+      - deployment  # or your deployment branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Backend Deployment
+        run: |
+          curl -X POST https://api.render.com/deploy/srv-d03amh2dbo4c73e11mj0?key=ga0L3VYeArA
+    
+      - name: Trigger Frontend Deployment
+        run: |
+          curl -X POST https://api.render.com/deploy/srv-d03c188dl3ps73fjpi30?key=95aOrlLR0HI

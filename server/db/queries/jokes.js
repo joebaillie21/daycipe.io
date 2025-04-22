@@ -8,8 +8,21 @@ export const getJokes = async () => {
 
 export const getCurrentJokes = async () => {
     const result = await pool.query("SELECT * FROM jokes WHERE jokes.date=CURRENT_DATE ORDER BY score LIMIT 3");
-    return result.rows[0];
+    return result.rows;
 }
+
+export const getJokesByDateRange = async (startDate, endDate = null) => {
+    // If no end date provided, search only for the start date
+    const actualEndDate = endDate || startDate;
+    
+    const query = `
+        SELECT * FROM jokes 
+        WHERE date >= $1 AND date <= $2 AND is_shown = TRUE
+        ORDER BY date DESC, score DESC
+    `;
+    const result = await pool.query(query, [startDate, actualEndDate]);
+    return result.rows;
+};
 
 export const createJoke = async (jokeData) => {
     const query = `INSERT INTO jokes (date, content) VALUES ($1, $2) RETURNING id`;

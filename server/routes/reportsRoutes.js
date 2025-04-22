@@ -39,7 +39,6 @@ router.post("/create", async (req, res) => {
         const content_type = req.body.content_type;
         const substance_of_report = req.body.substance_of_report;
         if (!content_type || !content_id || !substance_of_report) {
-            console.log(content_type, content_id, substance_of_report);
             res.status(400).json({ error: `Request does not contain all required fields.` });
             return;
         }

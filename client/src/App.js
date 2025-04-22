@@ -1,23 +1,33 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import TitleArea from './components/TitleArea';
+import FactOfTheDay from './components/FactOfTheDay';
+import JokeOfTheDay from './components/JokeOfTheDay';
+import RecipeOfTheDay from './components/RecipeOfTheDay';
 
 function App() {
+  const [date, setDate] = useState(new Date());
+
+  const goToPrevDay = () => {
+    setDate(prev => new Date(prev.getTime() - 86400000));
+  };
+
+  const goToNextDay = () => {
+    setDate(prev => new Date(prev.getTime() + 86400000));
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <TitleArea currentDate={date} onPrevDay={goToPrevDay} onNextDay={goToNextDay} />
+      <div className="content">
+        <div className="left-column">
+          <FactOfTheDay date={date} />
+          <JokeOfTheDay date={date} />
+        </div>
+        <div className="right-column">
+          <RecipeOfTheDay date={date} />
+        </div>
+      </div>
     </div>
   );
 }

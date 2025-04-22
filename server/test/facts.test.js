@@ -1,7 +1,7 @@
 import request from "supertest";
 import express, {json} from "express";
 import factsRouter from "../routes/factsRoutes.js";
-import { getCurrentFact, getFacts, createFact, upvoteFact, downvoteFact } from "../db/queries/facts.js";
+import { getCurrentFact, getFacts, createFact, upvoteFact, downvoteFact, getAllCategoryFactsForToday } from "../db/queries/facts.js";
 
 jest.mock("../db/queries/facts.js");
 
@@ -66,9 +66,88 @@ describe("GET Endpoints", () => {
     const response = await request(app).get("/facts/today");
 
     expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: "Failed to get facts" });
+    expect(response.body).toEqual({ error: "Failed to get facts: Database error" });
   });
 
+});
+
+describe("GET Endpoints with category support", () => {
+  
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // Test getting today's fact with no category (default behavior)
+  test("GET /facts/today with no category should return default fact", async () => {
+    const mockFact = { id: 1, content: "Default fact", category: "math" };
+    getCurrentFact.mockResolvedValue(mockFact);
+
+    const response = await request(app).get("/facts/today");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockFact);
+    expect(getCurrentFact).toHaveBeenCalledWith(null);
+  });
+
+  // Test getting today's fact with specific category
+  test("GET /facts/today with specific category should return filtered fact", async () => {
+    const mockFact = { id: 2, content: "Physics fact", category: "physics" };
+    getCurrentFact.mockResolvedValue(mockFact);
+
+    const response = await request(app).get("/facts/today?category=physics");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockFact);
+    expect(getCurrentFact).toHaveBeenCalledWith("physics");
+  });
+
+  // Test getting all category facts for today
+  test("GET /facts/today with category=all should return one fact per category", async () => {
+    const mockFacts = [
+      { id: 1, content: "Math fact", category: "math" },
+      { id: 2, content: "Physics fact", category: "physics" },
+      { id: 3, content: "Bio fact", category: "bio" }
+    ];
+    getAllCategoryFactsForToday.mockResolvedValue(mockFacts);
+
+    const response = await request(app).get("/facts/today?category=all");
+    
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockFacts);
+    expect(getAllCategoryFactsForToday).toHaveBeenCalledTimes(1);
+  });
+
+  // Test getting specific category with no fact available
+  test("GET /facts/today with specific category should return 404 if no fact found", async () => {
+    getCurrentFact.mockResolvedValue(null);
+
+    const response = await request(app).get("/facts/today?category=compsci");
+    
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "No fact of the day found." });
+    expect(getCurrentFact).toHaveBeenCalledWith("compsci");
+  });
+
+  // Test getting all category facts with none available
+  test("GET /facts/today with category=all should return 404 if no facts found", async () => {
+    getAllCategoryFactsForToday.mockResolvedValue([]);
+
+    const response = await request(app).get("/facts/today?category=all");
+    
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "No facts of the day found." });
+    expect(getAllCategoryFactsForToday).toHaveBeenCalledTimes(1);
+  });
+
+  // Test error handling for category-based queries
+  test("GET /facts/today with category parameter should handle errors", async () => {
+    getAllCategoryFactsForToday.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app).get("/facts/today?category=all");
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Failed to get facts: Database error" });
+  });
 });
 
 describe("POST endpoints", () => {
