@@ -148,8 +148,9 @@ def generate_and_save_content(date_range, verbose=False):
     # Set up the model
     model = setup_model()  # Only Gemini-1.5-flash is supported
 
-    # Get today's date for the recipe and fact generation
-    today = datetime.date.today()
+    # Get the UTC date to align with the server time
+    utc_now = datetime.datetime.now(datetime.timezone.utc)
+    today = utc_now.date()
     # The format of datestring is "Month Day" (e.g., "January 01")
     # date_string = "December 16"    # Uncomment this line to use a specific date in the format "Month Day"
     for i in range(date_range):
