@@ -1,6 +1,8 @@
 import { pool } from "../conn.js";
 import { evaluateContentVisibility } from "../../config/contentRules.js";
 
+export const VALID_FACT_CATEGORIES = ['math', 'physics', 'bio', 'compsci', 'chem'];
+
 export const getFacts = async () => {
     const result = await pool.query("SELECT * FROM facts");
     return result.rows;
@@ -89,3 +91,11 @@ const updateFactVisibility = async (fact) => {
         fact.is_shown = shouldBeShown;
     }
 }
+
+export const getCurrentFactByCategory = async (category) => {
+    const result = await pool.query(
+        "SELECT * FROM facts WHERE date = CURRENT_DATE AND category = $1 LIMIT 1",
+        [category]
+    );
+    return result.rows[0];
+};

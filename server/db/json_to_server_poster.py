@@ -7,24 +7,16 @@ To view the outputs for recipes and facts, take a look at the example_daily_outp
 
 # NOTE: For now, the date that gets printed is just the today's date, not the date of the content.
 '''
-
 import json
 import requests
-from datetime import date
+import datetime
+import argparse
 
-# URLs
-JOKE_URL = "http://localhost:3001/api/jokes/create"
-FACT_URL = "http://localhost:3001/api/facts/create"
-RECIPE_URL = "http://localhost:3001/api/recipes/create"
-
-# Current date (ISO format)
-today = date.today().isoformat()
-date_str = date.today().strftime("%B %d")
-# date_str = "December 16"  # Uncomment this line to use the current date in the format "Month Day"
 content_directory = "daily_outputs"
 
 # === POST JOKES ===
-def post_jokes():
+def post_jokes(date, verbose=False, JOKE_URL=None):
+    date_str = date.strftime("%B %d")  # Format: Month Day (e.g., "December 16")
     try:
         filepath = content_directory + "/jokes_" + date_str + ".json"
         with open(filepath, "r", encoding="utf-8") as f:
@@ -33,20 +25,21 @@ def post_jokes():
         for joke_text in jokes:
             payload = {
                 "joke": {
-                    "date": today,
+                    "date": date.isoformat(),
                     "content": joke_text
                 }
             }
             response = requests.post(JOKE_URL, json=payload)
             if response.ok:
-                print(f"✅ Joke posted: {joke_text}")
+                if (verbose): print(f"✅ Joke posted: {joke_text}")
             else:
                 print(f"❌ Failed to post joke: {response.text}")
     except Exception as e:
         print(f"⚠️ Error posting jokes: {e}")
 
 # === POST FACTS ===
-def post_facts():
+def post_facts(date, verbose=False, FACT_URL=None):
+    date_str = date.strftime("%B %d")  # Format: Month Day (e.g., "December 16")
     try:
         filepath = content_directory + "/facts_" + date_str + ".json"
         with open(filepath, "r", encoding="utf-8") as f:
@@ -68,7 +61,7 @@ def post_facts():
 
             payload = {
                 "fact": {
-                    "date": today,
+                    "date": date.isoformat(),
                     "content": data["fact"], # size limit is 1000 characters
                     "source": data["source"], # size limit is 200 characters
                     "category": mapped_category
@@ -77,14 +70,15 @@ def post_facts():
 
             response = requests.post(FACT_URL, json=payload)
             if response.ok:
-                print(f"✅ Fact posted ({mapped_category}): {data['fact'][:60]}...")
+                if (verbose): print(f"✅ Fact posted ({mapped_category}): {data['fact'][:60]}...")
             else:
                 print(f"❌ Failed to post fact ({label}): {response.text}")
     except Exception as e:
         print(f"⚠️ Error posting facts: {e}")
 
 # === POST RECIPES ===
-def post_recipes():
+def post_recipes(date, verbose=False, RECIPE_URL=None):
+    date_str = date.strftime("%B %d")  # Format: Month Day (e.g., "December 16")
     try:
         filepath = content_directory + "/recipes_" + date_str + ".json"
         with open(filepath, "r", encoding="utf-8") as f:
@@ -95,22 +89,54 @@ def post_recipes():
         for category, recipe in recipes.items():
             payload = {
                 "recipe": {
-                    "date": today,
+                    "date": date.isoformat(),
                     "content": recipe,
                     "category": category
                 }
             }
             response = requests.post(RECIPE_URL, json=payload)
             if response.ok:
-                print(f"✅ Recipe posted ({category}): {recipe['title'][:60]}...")
+                if (verbose): print(f"✅ Recipe posted ({category}): {recipe['title'][:60]}...")
             else:
                 print(f"❌ Failed to post recipe ({category}): {response.text}")
     except Exception as e:
         print(f"⚠️ Error posting recipes: {e}")
 
-# Run both
+
+def post_content(date_range, verbose=False, isDeployment=False):
+    if verbose:
+        print(f"Verbose mode is on. Generating content for {date_range} days.")
+
+    # URLs
+    if isDeployment:
+        print("Posting content to production deployment API.")
+        API = "https://daycipe-io-server.onrender.com"
+    else:
+        print("Posting content to local development API.")
+        API = "http://localhost:3001"
+
+    JOKE_URL = f"{API}/api/jokes/create"
+    FACT_URL = f"{API}/api/facts/create"
+    RECIPE_URL = f"{API}/api/recipes/create"
+
+    # Get the UTC date to align with the server time
+    utc_now = datetime.datetime.now(datetime.timezone.utc)
+    today = utc_now.date()
+    # The format of datestring is "Month Day" (e.g., "January 01")
+    # date_string = "December 16"    # Uncomment this line to use a specific date in the format "Month Day"
+    for i in range(date_range):
+        date = today - datetime.timedelta(days=i)
+        date_str = date.strftime("%B %d")
+        print("Posting content for date:", date_str)
+        post_jokes(date, verbose, JOKE_URL)
+        post_facts(date, verbose, FACT_URL)
+        post_recipes(date, verbose, RECIPE_URL)
+
 if __name__ == "__main__":
-    print("Posting content for date:", date_str)
-    post_jokes()
-    post_facts()
-    post_recipes()
+    parser = argparse.ArgumentParser(description="Post jokes, facts, and recipes to the PostgreSQL database via REST API.")
+    parser.add_argument("--days", type=int, default=1, help="Number of days to post content for (default: 1)")
+    parser.add_argument("--production", action="store_true", help="Use the production deployment API")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    args = parser.parse_args()
+
+    post_content(args.days, args.verbose, args.production)
