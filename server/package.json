@@ -13,7 +13,9 @@
     "transform": {
       "^.+\\.js$": "babel-jest"
     },
-    "testMatch": ["**/test/unit/**/*.test.js"],
+    "testMatch": [
+      "**/test/unit/**/*.test.js"
+    ],
     "collectCoverageFrom": [
       "routes/*.js"
     ],
