@@ -138,4 +138,4 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
 
-    post_content(args.days, args.verbose)
+    post_content(args.days, args.verbose, args.production)
